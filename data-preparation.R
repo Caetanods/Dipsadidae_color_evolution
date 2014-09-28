@@ -17,26 +17,25 @@ genus.name <- read.table("./data/species_list.csv", header = TRUE, sep = ",", as
 to.genus.tree <- function(phy, genera){
     ## Picking one species per genus randomly:
     ## phy = multiphylo object
-    ## genera = vector with genera names
+    ## genera = data matrix. first column with the genera names. second column with species names. This is the same species of the original phylogeny.
     genus.list <- list()
     temp <- list()
-    gu <- unique(genera)
+    gu <- unique(genera[,1])
     for(i in 1:length(gu)){
-        temp[[i]] <- genera[which(genera == gu[i])]
+        temp[[i]] <- genera[which(genera[,1] == gu[i]),]
         a <- sample(1:dim(temp[[i]])[1], 1)
         genus.list[[i]] <- temp[[i]][a,]
     }
     genus.list <- do.call(rbind,genus.list)
+    
+    ## Prune the tree only to keep those species:
+    to.keep <- genus.list[,3]
+    to.prune <- phy[[1]]$tip.label[!phy[[1]]$tip.label %in% to.keep]
+    phy.genus <- lapply(1:100, FUN = function(x) drop.tip(phy[[x]], tip=to.prune))
+    return(phy.genus)
+}
 
-## Need to remember to check if the data table has the same list of genera. If not, the genera need to be
-## pruned of the data table. Since it is not possible to place the genus in the phylogeny in the correct place.
-genus.list
-
-## Prune the tree only to keep those species:
-to.keep <- genus.list[,3]
-to.prune <- tree[[1]]$tip.label[!tree[[1]]$tip.label %in% to.keep]
-length(to.keep) + length(to.prune) == length(tree[[1]]$tip.label) #Test to see if we got the right tips.
-tree.genus <- lapply(1:100, FUN = function(x) drop.tip(tree[[x]], tip=to.prune))
+tree.genus <- to.genus.tree(tree, genus.name)
 
 ## Note that the depth of the tree is not scale to 1:
 plot(tree.genus[[1]], direction="upwards"); axisPhylo(side = 4)

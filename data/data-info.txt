@@ -1,0 +1,5 @@
+"./beast_ingroup_100_posterior_sample.nex"
+ -- File with 100 trees sampled randomly form the posterior of trees of the BEAST analysis. Note that the tree does not have the outgroup.
+
+"./species_list.csv"
+ -- List of species names.

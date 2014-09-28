@@ -1,0 +1,3 @@
+This is the directory where the official repository will be.
+
+I will divide the scripts in different tasks. Them I am going to use a main script to call the different functions and rum the whole analysis again.

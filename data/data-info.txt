@@ -3,3 +3,6 @@
 
 "./species_list.csv"
  -- List of species names.
+
+"./coloration_data.csv"
+ -- Coloration categories for the species.

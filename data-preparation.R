@@ -77,4 +77,4 @@ unres$n0 <- as.numeric(unres$n0)
 unres$n1 <- as.numeric(unres$n1)
 
 ## Save the important objects:
-save(st, unres, tree.genus, file = "data_for_BiSSE.RData")
+save(st, unres, tree.genus, file = "./data/data_for_BiSSE.RData")

@@ -28,3 +28,13 @@ to.genus.tree <- function(phy, genera){
 
     return(phy.genus)
 }
+
+tree.pruner <- function(phy, outgroup){
+    label <- phy$tip.label
+    outgroup[!outgroup %in% label]
+    prune <- which(label %in% outgroup)
+    ingroup <- label[-prune]
+    if(!is.monophyletic(phy, tips = ingroup)) stop("ingroup is not monophyletic")
+    cphy <- drop.tip(phy, tip = outgroup)
+    return(cphy)
+}

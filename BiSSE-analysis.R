@@ -11,13 +11,22 @@ state <- as.numeric(st[,2])
 names(state) <- st[,1]
 
 ## Run example of analysis:
-res <- run.bisse(tree = tree.genus[[1]], st = state, unres = unres, steps = 100)
+res.constrain <- run.bisse(tree = tree.genus[[1]], st = state, unres = unres, tun.steps = 10, chain.steps = 10, constrain = "TRUE")
+res.free <- run.bisse(tree = tree.genus[[1]], st = state, unres = unres, tun.steps = 10, chain.steps = 10, constrain = "FALSE")
 
 ## Run the complete analysis:
 ## WARNING: It depends on 'multicore' and takes time to run.
 ## library(multicore)
 ## index <- 1:100
-## res <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = st, unres = unres, steps = 10000), mc.cores = 10)
+## mcmc.onerate <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = st, unres = unres, tun.steps = 100, chain.steps = 100000, constrain = "TRUE"), mc.cores = 10)
+## mcmc.tworate <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = st, unres = unres, tun.steps = 100, chain.steps = 100000, constrain = "FALSE"), mc.cores = 10)
+
+###########################
+## Load the results (Comment this part if running the complete analysis)
+## Download the file from FigShare.
+
+download.file(url = "http://files.figshare.com/1696849/results_100_phylo_bisse.RData", destfile = ".results_bisse.RData", method = "wget")
+load("./results_bisse.RData")
 
 ###########################
 
@@ -29,14 +38,14 @@ library(coda)
 dir.create("./mcmc_coda_plots")
 
 ## Trace plots
-dim(res.cr[[1]][[1]])[1]
-index <- round(seq(1, dim(res.cr[[1]][[1]])[1], length.out = 500))
-runs <- length(res)
+dim(mcmc.onerate[[1]][[1]])[1]
+index <- round(seq(1, dim(mcmc.onerate[[1]][[1]])[1], length.out = 500))
+runs <- length(mcmc.onerate)
 
-ng <- paste("Trace_",seq(1,runs),".pdf", sep="")
+ng <- paste("./mcmc_coda_plots/trace_cons_",seq(1,runs),".pdf", sep="")
 for(i in 1:runs){
     pdf(ng[i])
-    chain <- res[[i]][[1]]
+    chain <- mcmc.onerate[[i]][[1]]
     plot(chain$p[index], type = "l")
     dev.off()
 }
@@ -44,15 +53,14 @@ for(i in 1:runs){
 ## Taking out a 25% burn-in:
 burn <- list()
 for(i in 1:runs){
-    burn[[i]] <- res[[i]][[1]][(dim(res[[i]][[1]])[1]*25/100):dim(res[[i]][[1]])[1],]
+    burn[[i]] <- mcmc.onerate[[i]][[1]][(dim(res[[i]][[1]])[1]*25/100):dim(res[[i]][[1]])[1],]
 }
 
-lb <- paste0("lambda_",seq(1,runs),".pdf")
-mu <- paste0("mu_",seq(1,runs),".pdf")
-mk <- paste0("markov_",seq(1,runs),".pdf")
-nt <- paste0("net_diver_",seq(1,runs),".pdf")
+lb <- paste("./mcmc_coda_plots/lambda_",seq(1,runs),".pdf", sep="")
+mu <- paste("./mcmc_coda_plots/mu_",seq(1,runs),".pdf", sep="")
+mk <- paste("./mcmc_coda_plots/markov_",seq(1,runs),".pdf", sep="")
 
-for(i in 1:10){
+for(i in 1:runs){
     pdf(file = lb[i])
     profiles.plot(burn[[i]][c("lambda0")], col.line = c("yellow"))
     dev.off()
@@ -64,43 +72,9 @@ for(i in 1:10){
     pdf(file = mk[i])
     profiles.plot(burn[[i]][c("q01","q10")], col.line = c("yellow","blue"), legend.pos = "topright")
     dev.off()
-
-    ## pdf(file = "turn_over.pdf")
-    ## profiles.plot(burn[c("mu0","mu1")] / burn[c("lambda0","lambda1")], col.line = c("yellow","blue")
-    ##               , legend.pos = "topright")
-    ## dev.off()
-
-    ## pdf(file = nt[i])
-    ## profiles.plot(burn[[i]][c("lambda0","lambda1")] - burn[[i]][c("mu0","mu1")], col.line = c("yellow","blue")
-    ##               , legend.pos = "topright")
-    ## dev.off()
 }
 
-## Note that the markov transition rate q10 is 10 times higher than the contrary.
-## We would expect then that in the long run most of the species would be in the state 0.
-## length(states.cr)
-## unique(states.cr)
-## sum(as.numeric(states.cr), na.rm = TRUE)
-## length(states.cr) - sum(as.numeric(states.cr), na.rm = TRUE)
-
-## ## This is a way to test the hypothesis here. We can set a new distribution of the differences off
-## ## the net diversification rates dependent of the two traits and see where the expected value will fall.
-## net <- burn[c("lambda0","lambda1")] - burn[c("mu0","mu1")]
-## colnames(net) <- c("net.diver0","net.diver1")
-
-## ## Compute the cumulative distribution function:
-## cdf <- ecdf(net[,2] - net[,1])
-
-## pdf("net_diver_cdf.pdf")
-## plot(cdf, main = "CDF of the net diversification of CON - CR")
-## dev.off()
-
-## ## This means that the probability of getting values smaller or equal to 0 is smaller than 0.05.
-## ## We reject the hypothesis of no difference between the net diversification values with CI equal to 0.95.
-## quantile(cdf, probs = 0.05)
-
 ## Now need to run a coda analysis to make sure that this is the converged distribution.
-require(coda)
 
 sm <- list()
 hei <- list()

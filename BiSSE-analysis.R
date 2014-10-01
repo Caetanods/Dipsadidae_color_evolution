@@ -35,105 +35,29 @@ load("./results_bisse.RData")
 ## Will also try to use use bonsai here.
 library(coda)
 
-## Create directory to save plots:
-dir.create("./mcmc_coda_plots")
+## Prepare arguments:
+path <- "./mcmc_coda_plos"
+burn <- 0.5
+run.one <- paste("onerate_", seq(1:length(mcmc.onerate)), sep = "")
+run.two <- paste("tworate_", seq(1:length(mcmc.tworate)), sep = "")
 
-## First the constrained results:
-
-## Trace plots
-dim(mcmc.onerate[[1]][[1]])[1]
-index <- round(seq(1, dim(mcmc.onerate[[1]][[1]])[1], length.out = 500))
-runs <- length(mcmc.onerate)
-
-ng <- paste("./mcmc_coda_plots/trace_cons_",seq(1,runs),".pdf", sep="")
-for(i in 1:runs){
-    pdf(ng[i])
-    chain <- mcmc.onerate[[i]][[1]]
-    plot(chain$p[index], type = "l")
-    dev.off()
-}
-
-## Taking out a 25% burn-in:
-burn <- list()
-for(i in 1:runs){
-    burn[[i]] <- mcmc.onerate[[i]][[1]][(dim(mcmc.onerate[[i]][[1]])[1]*25/100):dim(mcmc.onerate[[i]][[1]])[1],]
-}
-
-lb <- paste("./mcmc_coda_plots/lambda_cons_",seq(1,runs),".pdf", sep="")
-mu <- paste("./mcmc_coda_plots/mu_cons_",seq(1,runs),".pdf", sep="")
-mk <- paste("./mcmc_coda_plots/markov_cons_",seq(1,runs),".pdf", sep="")
-
-for(i in 1:runs){
-    pdf(file = lb[i])
-    profiles.plot(burn[[i]][c("lambda0")], col.line = c("yellow"))
-    dev.off()
-    
-    pdf(file = mu[i])
-    profiles.plot(burn[[i]][c("mu1")], col.line = c("yellow"))
-    dev.off()
-
-    pdf(file = mk[i])
-    profiles.plot(burn[[i]][c("q01","q10")], col.line = c("yellow","blue"), legend.pos = "topright")
-    dev.off()
-}
-
-## The results of the full model:
-
-## Trace plots
-dim(mcmc.tworate[[1]][[1]])[1]
-index <- round(seq(1, dim(mcmc.tworate[[1]][[1]])[1], length.out = 500))
-runs <- length(mcmc.onerate)
-
-ng <- paste("./mcmc_coda_plots/trace_full_",seq(1,runs),".pdf", sep="")
-for(i in 1:runs){
-    pdf(ng[i])
-    chain <- mcmc.tworate[[i]][[1]]
-    plot(chain$p[index], type = "l")
-    dev.off()
-}
-
-## Taking out a 25% burn-in:
-burn <- list()
-for(i in 1:runs){
-    burn[[i]] <- mcmc.tworate[[i]][[1]][(dim(mcmc.tworate[[i]][[1]])[1]*25/100):dim(mcmc.tworate[[i]][[1]])[1],]
-}
-
-lb <- paste("./mcmc_coda_plots/lambda_full_",seq(1,runs),".pdf", sep="")
-mu <- paste("./mcmc_coda_plots/mu_full_",seq(1,runs),".pdf", sep="")
-mk <- paste("./mcmc_coda_plots/markov_full_",seq(1,runs),".pdf", sep="")
-
-for(i in 1:runs){
-    pdf(file = lb[i])
-    profiles.plot(burn[[i]][c("lambda0")], col.line = c("yellow"))
-    dev.off()
-    
-    pdf(file = mu[i])
-    profiles.plot(burn[[i]][c("mu1")], col.line = c("yellow"))
-    dev.off()
-
-    pdf(file = mk[i])
-    profiles.plot(burn[[i]][c("q01","q10")], col.line = c("yellow","blue"), legend.pos = "topright")
-    dev.off()
-}
+## Make trace and profile plots:
+lapply(1:length(mcmc.onerate), FUN = function(x) to.mcmc.plot(mcmc.onerate[[x]][[1]], run.one[x], dir = path, burn)
+lapply(1:length(mcmc.tworate), FUN = function(x) to.mcmc.plot(mcmc.tworate[[x]][[1]], run.two[x], dir = path, burn)
 
 ############################
 ## Run diagnostic for convergence.
 
-sm.cons <- list(); sm.full <- list()
-hei.cons <- list(); hei.full <- list()
-for(i in 1:runs){
-    res.cons <- mcmc.onerate[[i]][[1]]; res.full <- mcmc.tworate[[i]][[1]]
-    mc.cons <- res.cons[,c(-1,-8)]; mc.full <- res.full[,c(-1,-8)]
-    mc.dat.cons <- as.mcmc(mc.cons); mc.dat.full <- as.mcmc(mc.full)
-    sm.cons[[i]] <- summary(mc.dat.cons); sm.full[[i]] <- summary(mc.dat.full)
-    hei.cons[[i]] <- heidel.diag(mc.dat.cons); hei.full[[i]] <- heidel.diag(mc.dat.full)
-}
+hei.one <- to.heidel.diag(mcmc.onerate)
+hei.two <- to.heidel.diag(mcmc.tworate)
+
+## Summary stats of the mcmc run:
+## hei.one[[1]][[1]]
+## hei.two[[1]][[1]]
 
 ## Check the results of the Heidelberger and Welch's convergence diagnostic for each run:
-hei.cons[[1]]
-hei.full[[1]]
-
-################################
+## hei.one[[1]][[2]]
+## hei.two[[1]][[2]]
 
 ################################
 ## The combined posterior with half burn percentage.

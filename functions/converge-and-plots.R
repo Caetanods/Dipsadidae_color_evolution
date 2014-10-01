@@ -45,3 +45,4 @@ to.heidel.diag <- function(bisse){
 
     out <- lapply(1:length(bisse), FUN = function(x) make.heidel(bisse[[x]][[1]]) )
 }
+

@@ -71,6 +71,6 @@ comb <- do.call(rbind, burn.comb)
 head(comb)
 dim(comb)
 comb.one.rate <- comb
-save(comb.one.rate, file = "combine.one.rate.RData")
 
+## save(comb.one.rate, file = "combine.one.rate.RData")
 ## write.table(comb, file = "Comb.posterior.bisse.cr.txt", sep = ",")

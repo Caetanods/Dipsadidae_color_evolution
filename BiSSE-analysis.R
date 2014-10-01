@@ -18,8 +18,8 @@ res.free <- run.bisse(tree = tree.genus[[1]], st = state, unres = unres, tun.ste
 ## WARNING: It depends on 'multicore' and takes time to run.
 ## library(multicore)
 ## index <- 1:100
-## mcmc.onerate <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = st, unres = unres, tun.steps = 100, chain.steps = 100000, constrain = "TRUE"), mc.cores = 10)
-## mcmc.tworate <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = st, unres = unres, tun.steps = 100, chain.steps = 100000, constrain = "FALSE"), mc.cores = 10)
+## mcmc.onerate <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = state, unres = unres, tun.steps = 100, chain.steps = 10000, constrain = "TRUE"), mc.cores = 10)
+## mcmc.tworate <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = state, unres = unres, tun.steps = 100, chain.steps = 10000, constrain = "FALSE"), mc.cores = 10)
 
 ###########################
 ## Load the results (Comment this part if running the complete analysis)

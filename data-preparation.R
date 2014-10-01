@@ -54,7 +54,7 @@ rownames(t.name) <- NULL
 
 one.sp <- t.name[which(t.name[,2] == 1),][,1]
 more.sp <- t.name[which(!t.name[,2] == 1),][,1]
-one.sp.m <- as.matrix(full.data[full.data[,2] %in% one.sp,][,-1])
+one.sp.m <- as.matrix(full.data[full.data[,3] %in% one.sp,][,-1])
 more.sp.m <- cbind(more.sp, NA)
 st <- rbind(one.sp.m, more.sp.m)
 

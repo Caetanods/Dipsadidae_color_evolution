@@ -13,12 +13,28 @@ run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE
 		lik.c <- constrain(lik, lambda1~lambda0, mu1~mu0)
 	}
 
+	## Flag:
+	print("Start analysis...")
+
     start <- starting.point.bisse(tree)
     prior.c <- make.prior.exponential(1 / 2 * (start[1] - start[3]))
 
     fit <- find.mle(lik.c, start[argnames(lik.c)])
+
+	## Flag:
+	print("ML estimate finished...")
+
     tun <- mcmc(lik.c, fit$par, nsteps = tun.steps, w = rep(1,4), lower = 0, print.every = 0, prior = prior.c)
+
+	## Flag:
+	print("MCMC tunning finished...")
+	print("Starting MCMC chain...")
+
     w <- diff(sapply(tun[2:5], range))
     run.c <- mcmc(lik.c, fit$par, nsteps = chain.steps, w = w, lower = 0, print.every = 0, prior = prior.c)
+
+	## Flag:
+	print("Done!")
+
     return(list(run.c, lik.c, prior.c))
 }

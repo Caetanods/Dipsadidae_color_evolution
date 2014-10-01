@@ -119,23 +119,25 @@ for(i in 1:runs){
 ############################
 ## Run diagnostic for convergence.
 
-sm.cons <- list()
-sm.full <- list()
-hei.cons <- list()
-hei.full <- list()
+sm.cons <- list(); sm.full <- list()
+hei.cons <- list(); hei.full <- list()
 for(i in 1:runs){
-    res <- mcmc.onerate[[i]][[1]]
-    mc <- res[,c(-1,-8)]
-    mc.dat <- as.mcmc(mc)
-    sm[[i]] <- summary(mc.dat)
-    hei[[i]] <- heidel.diag(mc.dat)
+    res.cons <- mcmc.onerate[[i]][[1]]; res.full <- mcmc.tworate[[i]][[1]]
+    mc.cons <- res.cons[,c(-1,-8)]; mc.full <- res.full[,c(-1,-8)]
+    mc.dat.cons <- as.mcmc(mc.cons); mc.dat.full <- as.mcmc(mc.full)
+    sm.cons[[i]] <- summary(mc.dat.cons); sm.full[[i]] <- summary(mc.dat.full)
+    hei.cons[[i]] <- heidel.diag(mc.dat.cons); hei.full[[i]] <- heidel.diag(mc.dat.full)
 }
 
 ## Check the results of the Heidelberger and Welch's convergence diagnostic for each run:
-hei[[1]]
+hei.cons[[1]]
+hei.full[[1]]
 
 ################################
-## Now the combined posterior with half burn in for all the 10 trees:
+
+################################
+## The combined posterior with half burn percentage.
+## And the graphs to summarize the posterior for the parameters.
 
 burn.comb <- list()
 for(i in 1:10){

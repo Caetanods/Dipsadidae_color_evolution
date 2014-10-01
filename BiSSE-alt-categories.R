@@ -50,7 +50,7 @@ altB[which(altB == "VEN")] <- 1
 altB[which(altB == "CON+VEN")] <- 1
 
 ## Changes: JUV -> CR:
-altA[which(altA == "JUV")] <- 0
+altB[which(altB == "JUV")] <- 0
 
 ## Cryptic category:
 altB[which(altB == "CR")] <- 0

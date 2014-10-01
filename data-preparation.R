@@ -16,7 +16,7 @@ full.data <- read.csv("./data/coloration_data.csv", as.is = TRUE)
 tree.genus <- to.genus.tree(tree, genus.name)
 
 ## Check how the tree look like:
-plot(tree.genus[[1]], direction="upwards"); axisPhylo(side = 4)
+## plot(tree.genus[[1]], direction="upwards"); axisPhylo(side = 4)
 
 ###################################################
 ## Load the full dataset to make the unresolved table to run BiSSE in the genera tip trees:
@@ -34,12 +34,12 @@ states <- full.data$Category
 ## Aposematic category:
 states[which(states == "CON")] <- 1
 states[which(states == "VEN")] <- 1
+states[which(states == "CON+VEN")] <- 1
 
 ## Cryptic category:
 states[which(states == "CR")] <- 0
 states[which(states == "VIP")] <- 0
 states[which(states == "CR+VIP")] <- 0
-states[which(states == "CON+VEN")] <- 0
 
 ## Since there are cryptic forms among the polymorfic here.
 ## We are codding them as cryptic (this is the conservative interpretation)
@@ -62,7 +62,6 @@ st <- rbind(one.sp.m, more.sp.m)
 unres <- table(full.data[,c(2,3)])
 unres <- cbind(row.names(unres),unres)
 rownames(unres) <- NULL
-unres
 
 ## Now we need the total number of species in one of the columns.
 mm <- match(unres[,1], t.name[,1])

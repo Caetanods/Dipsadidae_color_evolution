@@ -24,7 +24,7 @@ tree.genus <- to.genus.tree(tree, genus.name)
 ##      the juveniles are aposematic are coded as APO.
 ## The other polymorphisms are still in this table.
 
-full.data <- full.data[,-c(1,4)]
+full.data <- full.data[,-c(1,3,5)]
 
 states <- full.data$Category
 

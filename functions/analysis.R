@@ -34,7 +34,6 @@ run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE
 		w <- diff(sapply(tun[2:5], range))
 	} else {
 		w <- diff(sapply(tun[2:7], range))
-		print("Full model.")
 	}
 
 	## Flag:

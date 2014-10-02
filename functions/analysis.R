@@ -9,9 +9,13 @@ run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE
     lik <- make.bisse(tree, st[mmm], unresolved = unres)
 	
 	if(constrain == "TRUE"){
+		w.init <- rep(1,4)
 		lik <- constrain(lik, lambda1~lambda0, mu1~mu0)
 		print("Constrained model.")
-	} else { print("Full model.") }
+	} else {
+		w.init <- rep(1,6) 
+		print("Full model.")
+	}
 
 	## Flag:
 	print("Start analysis...")
@@ -24,13 +28,19 @@ run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE
 	## Flag:
 	print("ML estimate finished...")
 
-    tun <- mcmc(lik, fit$par, nsteps = tun.steps, w = rep(1,4), lower = 0, print.every = 0, prior = prior)
+    tun <- mcmc(lik, fit$par, nsteps = tun.steps, w = w.init, lower = 0, print.every = 0, prior = prior)
+
+	if(constrain == "TRUE"){
+		w <- diff(sapply(tun[2:5], range))
+	} else {
+		w <- diff(sapply(tun[2:7], range))
+		print("Full model.")
+	}
 
 	## Flag:
 	print("MCMC tunning finished...")
 	print("Starting MCMC chain...")
 
-    w <- diff(sapply(tun[2:5], range))
     run <- mcmc(lik, fit$par, nsteps = chain.steps, w = w, lower = 0, print.every = 0, prior = prior)
 
 	## Flag:

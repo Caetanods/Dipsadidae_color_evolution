@@ -21,39 +21,13 @@ nodes <- sapply(1:5, FUN = function(x) shifts[[x]]$summary$Shift.Node[2])
 state <- as.numeric(st[,2])
 names(state) <- st[,1]
 
-index <- 1:5
-
 tasks <- list(
-    job1 <- function() lapply(index, FUN = function(x) run.bisse(
-                                         tree = tree.genus[[x]],
-                                         st = stateA, unres = unres.alt[[1]],
-                                         tun.steps = 100,
-                                         chain.steps = 10000,
-                                         constrain = "TRUE") ),
-    job2 <- function() lapply(index, FUN = function(x) run.bisse(
-                                         tree = tree.genus[[x]],
-                                         st = stateA,
-                                         unres = unres.alt[[1]],
-                                         tun.steps = 100,
-                                         chain.steps = 10000,
-                                         constrain = "FALSE") ),
-    job3 <- function() lapply(index, FUN = function(x) run.bisse(
-                                         tree = tree.genus[[x]],
-                                         st = stateB,
-                                         unres = unres.alt[[2]],
-                                         tun.steps = 100,
-                                         chain.steps = 10000,
-                                         constrain = "TRUE") ),
-    job4 <- function() lapply(index, FUN = function(x) run.bisse(
-                                         tree = tree.genus[[x]],
-                                         st = stateB,
-                                         unres = unres.alt[[2]],
-                                         tun.steps = 100,
-                                         chain.steps = 10000,
-                                         constrain = "FALSE") )
+    job1 <- function() run.bisse.split(tree = tree.genus[[1]], st = state, unres = unres, nodes[1], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"),
+    job2 <- function() run.bisse.split(tree = tree.genus[[2]], st = state, unres = unres, nodes[2], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"),
+    job3 <- function() run.bisse.split(tree = tree.genus[[3]], st = state, unres = unres, nodes[3], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"),
+    job4 <- function() run.bisse.split(tree = tree.genus[[4]], st = state, unres = unres, nodes[4], tun.steps = 100, chain.steps = 10000, constrain = "FALSE")
 )
-
 
 out <- mclapply(tasks, function(f) f(), mc.cores = 4)
 
-save(out, file = "multi.run.RData")
+save(out, file = "medusa_check.RData")

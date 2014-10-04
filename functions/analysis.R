@@ -48,15 +48,18 @@ run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE
     return(list(run, lik, prior))
 }
 
-run.bisse.split <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE"){
+run.bisse.split <- function(tree, st, unres, nodes, tun.steps, chain.steps, constrain = "TRUE"){
     ## tree = phylo; st = vector of states; unres = unresolved matrix; steps = number of steps of the mcmc chain
-    ## save = save every x steps; file = name of the file.
+    ## save = save every x steps; file = name of the file; node = nodes where to split the model.
     ## The returning object of this function will be a list with the mcmc run, the lik function and the
     ## prior distribution.
     
     tree <- multi2di(tree)
     mmm <- match(tree$tip.label, names(st))
-    lik <- make.bisse(tree, st[mmm], unresolved = unres)
+
+	## Prepare the split model:
+	split.t <- rep("Inf", times = length(nodes))
+    lik <- make.bisse.split(tree, st[mmm], unresolved = unres, nodes = nodes, split.t = split.t)
 	
 	if(constrain == "TRUE"){
 		w.init <- rep(1,4)

@@ -104,3 +104,33 @@ run.bisse.split <- function(tree, st, unres, nodes, tun.steps, chain.steps, cons
 
     return(list(run, lik, prior))
 }
+
+to.make.rd.state <- function(states, unresolved, freq0, freq1){
+	## Function to create new states based on the frequencies of each state.
+	## Does not dependend on the phylogeny. So is equivalent to randomizing tips.
+    ## states and unresolved objects as in make.bisse.
+    ## freq0 and freq1 are frequencies for the 0 and 1 states.
+    ## Return list with the random sampled objects. Same structure of the original data.
+
+    ## Change unresolved block:
+    rd.unres <- unresolved
+    rd.unres$n0 <- NA
+    rd.unres$n1 <- NA
+    init <- 1
+
+    for(i in 1:length(rd.unres$Nc)){
+        nc <- rd.unres$Nc[i]
+        rd <- sample(x = c(0,1), size = nc, replace = TRUE, prob = c(st0.freq, st1.freq))
+        rd.state <- c(table(rd))
+        ifelse(is.na(rd.state[1]), rd.unres$n0[i] <- 0, rd.unres$n0[i] <- as.numeric(rd.state[1]))
+        ifelse(is.na(rd.state[2]), rd.unres$n1[i] <- 0, rd.unres$n1[i] <- as.numeric(rd.state[2]))        
+        init <- init+nc
+    }
+    
+    ## Change state vector block:
+    rd.st <- states
+    change <- as.numeric(which(!is.na(states)))
+    rd.st[change] <- sample(x = c(0,1), size = length(change), replace = TRUE, prob = c(st0.freq, st1.freq))
+
+    return(list(random.st = rd.st, random.unres = rd.unres))
+}

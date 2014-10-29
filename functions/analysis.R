@@ -1,4 +1,4 @@
-run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE"){
+run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE", flag = NULL){
     ## tree = phylo; st = vector of states; unres = unresolved matrix; steps = number of steps of the mcmc chain
     ## save = save every x steps; file = name of the file.
     ## The returning object of this function will be a list with the mcmc run, the lik function and the
@@ -11,14 +11,14 @@ run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE
 	if(constrain == "TRUE"){
 		w.init <- rep(1,4)
 		lik <- constrain(lik, lambda1~lambda0, mu1~mu0)
-		print("Constrained model.")
+		print(paste(flag, "- Constrained model.", sep=""))
 	} else {
 		w.init <- rep(1,6) 
-		print("Full model.")
+		print(paste(flag,"- Full model.", sep=""))
 	}
 
 	## Flag:
-	print("Start analysis...")
+	print(paste(flag, "- Start analysis...", sep=""))
 
     start <- starting.point.bisse(tree)
     prior <- make.prior.exponential(1 / 2 * (start[1] - start[3]))
@@ -26,7 +26,7 @@ run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE
     fit <- find.mle(lik, start[argnames(lik)])
 
 	## Flag:
-	print("ML estimate finished...")
+	print(paste(flag, "- ML estimate finished...", sep=""))
 
     tun <- mcmc(lik, fit$par, nsteps = tun.steps, w = w.init, lower = 0, print.every = 0, prior = prior)
 
@@ -37,18 +37,18 @@ run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE
 	}
 
 	## Flag:
-	print("MCMC tunning finished...")
-	print("Starting MCMC chain...")
+	print(paste(flag, "- Starting MCMC chain...", sep=""))
 
     run <- mcmc(lik, fit$par, nsteps = chain.steps, w = w, lower = 0, print.every = 0, prior = prior)
 
-	## Flag:
-	print("Done!")
-
+	write.csv(run, file = paste(flag, "_mcmc.csv", sep=""))
     return(list(run, lik, prior))
+
+	## Flag:
+	print(paste(flag, "- Done!", sep=""))
 }
 
-run.bisse.split <- function(tree, st, unres, nodes, tun.steps, chain.steps, constrain = "TRUE"){
+run.bisse.split <- function(tree, st, unres, nodes, tun.steps, chain.steps, constrain = "TRUE", flag = NULL){
     ## tree = phylo; st = vector of states; unres = unresolved matrix; steps = number of steps of the mcmc chain
     ## save = save every x steps; file = name of the file; node = nodes where to split the model.
     ## The returning object of this function will be a list with the mcmc run, the lik function and the
@@ -66,14 +66,14 @@ run.bisse.split <- function(tree, st, unres, nodes, tun.steps, chain.steps, cons
 	## w.init = free model minus the number of constrained paramters.
 	w.init <- rep(1,8)
 	lik <- constrain(lik, lambda1.1~lambda0.1, mu1.1~mu0.1, lambda1.2~lambda0.2, mu1.2~mu0.2)
-	print("Constrained model.")
+	print(paste(flag, "Constrained model.", sep=""))
     } else {
 	w.init <- rep(1,12) 
-	print("Full model.")
+	print(paste(flag, "Full model.", sep=""))
     }
 
     ## Flag:
-    print("Start analysis...")
+    print(paste(flag, "Start analysis...", sep=""))
 
 	## Need also to change the number of parameters for the start point.
     start <- starting.point.bisse(tree)
@@ -83,7 +83,7 @@ run.bisse.split <- function(tree, st, unres, nodes, tun.steps, chain.steps, cons
     fit <- find.mle(lik, start.split[argnames(lik)])
 
     ## Flag:
-    print("ML estimate finished...")
+    print(paste(flag, "ML estimate finished...", sep=""))
 
     tun <- mcmc(lik, fit$par, nsteps = tun.steps, w = w.init, lower = 0, print.every = 0, prior = prior)
 
@@ -94,15 +94,15 @@ run.bisse.split <- function(tree, st, unres, nodes, tun.steps, chain.steps, cons
     }
 
     ## Flag:
-    print("MCMC tunning finished...")
-    print("Starting MCMC chain...")
+    print(paste(flag, "Starting MCMC chain...", sep=""))
 
     run <- mcmc(lik, fit$par, nsteps = chain.steps, w = w, lower = 0, print.every = 0, prior = prior)
 
-    ## Flag:
-    print("Done!")
-
+	write.csv(run, file = paste(flag, "_mcmc_split.csv", sep=""))
     return(list(run, lik, prior))
+
+    ## Flag:
+    print(paste(flag, "Done!", sep=""))
 }
 
 to.make.rd.state <- function(states, unresolved, freq0, freq1){

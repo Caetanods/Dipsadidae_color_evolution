@@ -35,4 +35,41 @@ rd.data <- to.make.rd.state(state, unres, st0.freq, st1.freq)
 diver <- unres[,c(1,4)]
 
 ## Need to create polytomies. This function is too slow!!!
-phy.poly <- to.make.poly(diver, tree.genus[[1]] )
+#phy.poly <- lapply(1:length(tree.genus), FUN = function(x) to.make.poly(diver, tree.genus[[x]]) )
+#save(phy.poly, file="./data/phy.poly.RData")
+load("./data/phy.poly.RData") ## The above line take too much time to run.
+
+## First download and source the Polytomy resolver from the MEE website.
+## Ref: Kuhn, T. S., A. Ø. Mooers, and G. H. Thomas. 2011. A simple polytomy resolver for dated phylogenies. Methods in Ecology and Evolution 2:427–436.
+download.file(url = "http://onlinelibrary.wiley.com/store/10.1111/j.2041-210X.2011.00103.x/asset/supinfo/MEE3_103_sm_PolytomyResolver.R?v=1&s=8cc376399cf65663d730dd285450339b27c3c1bc", destfile = "./functions/MEE3_103_sm_PolytomyResolver.R", method = "wget")
+source("./functions/MEE3_103_sm_PolytomyResolver.R")
+
+## Create directory. Create BEAST files. Run BEAST. Get results:
+## Warning: Need BEAST and a Unix (tested in Ubuntu) environment to run:
+dir.create(path = "./Beast_files")
+dir.create(path = "./Beast_files/xml")
+dir.create(path = "./Beast_files/run_results")
+
+sapply(1:length(phy.poly), FUN = function(x) PolytomyResolver(phy.poly[[x]], error = 0.005,file.out = paste0("./Beast_files/xml/phy.mksim.", x) ) )
+
+system(command = "rm ./Beast_files/xml/*.nex")
+
+to.run.BEAST <- function(xml){
+    system(
+mclapply(1:length(phy.poly), 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

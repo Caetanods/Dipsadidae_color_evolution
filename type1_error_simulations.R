@@ -30,9 +30,6 @@ rd.data <- to.make.rd.state(state, unres, st0.freq, st1.freq)
 ## Sim2: Simulating a no-effect MK2 model.
 ## For this we need the complete resolved phylogeny at the species level.
 
-## First use phytools to create the polytomies:
-library(phytools)
-
 ## Create the diver object. Equal to the rich parameter for MEDUSA.
 diver <- unres[,c(1,4)]
 
@@ -42,6 +39,24 @@ phy.poly <- to.make.poly(diver, tree.genus[[1]] )
 to.make.poly <- function(diver, phy){
     ## Create a phylogeny with polytomies for clade data.
     ## diver is a matrix with first column is the tip.labels and second column is the total
+    
+    get.faster <- function(phy, tip){
+        ## Modification of the ape getMRCA function.
+        tip <- which(phy$tip.label %in% tip)
+        Ntip <- length(phy$tip.label)
+        seq.nod <- .Call(seq_root2tip, phy$edge, Ntip, phy$Nnode)
+        sn <- seq.nod[tip]
+        MRCA <- Ntip + 1
+        i <- 2
+        repeat {
+            x <- unique(unlist(lapply(sn, "[", i)))
+            if (length(x) != 1) 
+                break
+            MRCA <- x
+            i <- i + 1
+        }
+        MRCA
+    }
 
     add.species <- function(tree, species, genus = NULL){
         ## This is just a simpler version of 'phytools' function add.species.to.genus.
@@ -51,7 +66,7 @@ to.make.poly <- function(diver, phy){
         ## The 'where' parameter here is considered always == 'root'.
         ii <- grep(paste(genus, "_", sep = ""), tree$tip.label)
         if (length(ii) > 1) {
-            nn <- findMRCA(tree, tree$tip.label[ii])
+            nn <- get.faster(tree, tree$tip.label[ii])
             tree <- bind.tip(tree, gsub(" ", "_", species), where = nn)
         } else {
             nn <- ii

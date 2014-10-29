@@ -6,6 +6,7 @@
 
 library(multicore)
 library(diversitree)
+library(phytools)
 
 source("./functions/analysis.R")
 load("./data/data_for_BiSSE.RData")
@@ -35,54 +36,3 @@ diver <- unres[,c(1,4)]
 
 ## Need to create polytomies. This function is too slow!!!
 phy.poly <- to.make.poly(diver, tree.genus[[1]] )
-
-to.make.poly <- function(diver, phy){
-    ## Create a phylogeny with polytomies for clade data.
-    ## diver is a matrix with first column is the tip.labels and second column is the total
-    
-    get.faster <- function(phy, tip){
-        ## Modification of the ape getMRCA function.
-        tip <- which(phy$tip.label %in% tip)
-        Ntip <- length(phy$tip.label)
-        seq.nod <- .Call(seq_root2tip, phy$edge, Ntip, phy$Nnode)
-        sn <- seq.nod[tip]
-        MRCA <- Ntip + 1
-        i <- 2
-        repeat {
-            x <- unique(unlist(lapply(sn, "[", i)))
-            if (length(x) != 1) 
-                break
-            MRCA <- x
-            i <- i + 1
-        }
-        MRCA
-    }
-
-    add.species <- function(tree, species, genus = NULL){
-        ## This is just a simpler version of 'phytools' function add.species.to.genus.
-        ## This function does not have the checkings. As a results is faster.
-        ## Original 'phytools' function is more flexible.
-    
-        ## The 'where' parameter here is considered always == 'root'.
-        ii <- grep(paste(genus, "_", sep = ""), tree$tip.label)
-        if (length(ii) > 1) {
-            nn <- get.faster(tree, tree$tip.label[ii])
-            tree <- bind.tip(tree, gsub(" ", "_", species), where = nn)
-        } else {
-            nn <- ii
-            tree <- bind.tip(tree, gsub(" ", "_", species), where = nn, 
-                             position = 0.5 * tree$edge.length[which(tree$edge[, 2] == nn)])
-        }
-        return(tree)
-    }
-    
-    phy$tip.label <- paste(phy$tip.label,"_sp1",sep="")
-    sp.list <- lapply(1:dim(diver)[1], FUN = function(x) paste(diver[x,1],"_sp",2:diver[x,2],sep=""))
-    for(i in 1:length(sp.list)){
-        print(paste("Clade ",i," of ",length(sp.list)," with ",diver[i,2]," species.",sep=""))
-        for(j in 1:length(sp.list[[i]])){
-            phy <- add.species(phy, species=sp.list[[i]][j], genus=diver[i,1])
-        }
-    }
-    return(phy)
-}

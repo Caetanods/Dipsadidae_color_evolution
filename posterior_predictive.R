@@ -10,7 +10,15 @@
 library(diversitree)
 
 ## Read results. Get combined posterior for full model with 50% of burnin.
+
+## Uncomment following lines to download result file.
+## Download the results file from "http://files.figshare.com/1696849/results_100_phylo_bisse.RData"
+##    and use load() to get it to R.
+#download.file("http://files.figshare.com/1696849/results_100_phylo_bisse.RData", "result_data.RData")
+#load("result_data.RData")
+
 load("./results/results_100_phylo_bisse.RData")
+
 cc <- lapply(1:100, FUN = function(x) mcmc.tworate[[x]][[1]][5000:10000,c(-1,-8)])
 comb.post <- as.matrix(do.call(rbind, cc), rownames.force = FALSE)
 
@@ -33,13 +41,13 @@ post.predict.bisse <- function(post, max.taxa, size){
         vec <- c(p, tl)
         return(list(phy, vec))
     }
-    res <- lapply(gen, FUN = function(x) make.sim(post[x,], max.taxa))
+    res <- lapply(gen, FUN = function(x) make.sim(post[x,], max.taxa) )
     return(res)
 }
 
 ## How many datasets to be simulated?
 taxa <- 594
-size <- 10
+size <- 1000
 
 sim <- post.predict.bisse(post = comb.post, max.taxa = taxa, size = size)
 

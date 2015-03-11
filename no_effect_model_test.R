@@ -56,12 +56,13 @@ res.null <- run.bisse(tree = tr[[1]], st = st.bisse[[1]], unres = unres[[1]], tu
 
 ## Run the complete analysis:
 ## WARNING: It depends on 'multicore' and takes time to run.
-library(multicore)
-index <- 1:100
-mcmc.null <- mclapply(index, FUN = function(x) run.bisse(tree = tr[[x]], st = st.bisse[[x]], unres = unres[[x]]
-                               , tun.steps = 100, chain.steps = 10000, constrain = "FALSE"), mc.cores = 10)
+## library(multicore)
+## index <- 1:100
+## mcmc.null <- mclapply(index, FUN = function(x) run.bisse(tree = tr[[x]], st = st.bisse[[x]], unres = unres[[x]]
+##                                , tun.steps = 100, chain.steps = 10000, constrain = "FALSE"), mc.cores = 10)
 
 ###########################
 ## Load the results (Comment this part if running the complete analysis)
 ## Download the file from FigShare.
 
+## Compare the posterior of the null model with the empirical data.

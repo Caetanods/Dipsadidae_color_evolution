@@ -46,5 +46,3 @@ rownames(null.states) <- NULL
 ## Custom functions in 'functions/data-prepare.R'
 unres <- make.unres(null.states)
 st.bisse <- make.bisse.states(null.states)
-
-

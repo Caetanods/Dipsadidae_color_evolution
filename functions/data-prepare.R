@@ -82,6 +82,11 @@ make.bisse.states <- function(null.states){
     app <- cbind(other, NA)
     colnames(app) <- c("Genus","BISSE")
     st.bisse <- lapply(1:length(st), function(x) as.matrix(rbind(st[[x]], app)) )
+    states <- list()
+    for(i in 1:length(st)){
+        states[[i]] <- as.numeric(st.bisse[[i]][,2])
+        names(states[[i]]) <- unname(st.bisse[[i]][,1])
+    }
 
-    return(st.bisse)
+    return(states)
 }

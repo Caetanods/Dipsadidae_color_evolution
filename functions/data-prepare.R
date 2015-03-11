@@ -40,3 +40,48 @@ tree.pruner <- function(phy, outgroup){
     cphy <- drop.tip(phy, tip = outgroup)
     return(cphy)
 }
+
+## Below are functions special to the "no_effect_model_test.R" script.
+make.matrix <- function(uu, st){
+    mm <- data.frame(uu$Var1, uu$Freq - st, st, uu$Freq, stringsAsFactors = FALSE)
+    colnames(mm) <- c("tip.label","n0","n1","Nc")
+    rownames(mm) <- NULL
+    return(mm)
+}
+
+make.unres <- function(null.states){
+    genus.table <- data.frame(table(null.states[,1]))
+    i <- sapply(genus.table, is.factor)
+    genus.table[i] <- lapply(genus.table[i], as.character)
+
+    one.species <- genus.table[which(genus.table[,2] == 1),1]
+    species.table <- null.states[which(!null.states[,1] %in% one.species),]
+    
+    uu <- data.frame(table(as.character(species.table[,1])))
+    i <- sapply(uu, is.factor)
+    uu[i] <- lapply(uu[i], as.character)
+
+    st.1 <- t(sapply(uu$Var1, function(x)
+        colSums(species.table[which(species.table[,1] == x),-c(1,2)]) ))
+
+    unres <- lapply(1:ncol(st.1), function(x) make.matrix(uu, st.1[,x]) )
+    return(unres)
+}
+
+make.bisse.states <- function(null.states){
+    genus.table <- data.frame(table(null.states[,1]))
+    i <- sapply(genus.table, is.factor)
+    genus.table[i] <- lapply(genus.table[i], as.character)
+
+    one.species <- genus.table[which(genus.table[,2] == 1),1]
+    other <- genus.table[which(!genus.table[,2] == 1),1]
+    one.states <- null.states[which(null.states[,1] %in% one.species),]
+
+    st <- lapply(3:ncol(one.states), function(x) one.states[,c(1,x)] )
+    for(i in 1:length(st)) colnames(st[[i]]) <- c("Genus","BISSE")
+    app <- cbind(other, NA)
+    colnames(app) <- c("Genus","BISSE")
+    st.bisse <- lapply(1:length(st), function(x) as.matrix(rbind(st[[x]], app)) )
+
+    return(st.bisse)
+}

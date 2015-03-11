@@ -22,13 +22,29 @@ mn <- sapply(1:ll, function(x) apply(mcmc.tworate[[x]][[1]][,c(6,7)], 2, mean) )
 ## Simulate trait data under a Mk2 model with root = 1. Root value derived from ancestral state
 ##     estimate using BiSSE and the empirical data and trees.
 res <- lapply(1:ll, function(x) sim.character(phy[[x]], as.numeric(mn[,x]), x0=1, model = "mk2") )
-sim.null <- do.call(rbind, res)
+sim.null <- t(do.call(rbind, res))
 
 ## Drop tips to make tree a clade tree for accounting phylogenetic uncertainty while doing the
 ##     BiSSE estimates.
 tips <- phy[[1]]$tip.label
 genera <- sapply(tips, function(x) strsplit(x, split = "_")[[1]][1], USE.NAMES = FALSE )
-tip.matrix <- data.frame(genera, tips)
+tip.matrix <- data.frame(genera, tips, stringsAsFactors=FALSE)
 
 source("./functions/data-prepare.R")
 tr <- to.genus.tree(phy, tip.matrix)
+
+## Create unresolved object to run BiSSE model.
+## There is the same number of species (and states) as the original phylogeny.
+## They should match without problem.
+
+null.states <- data.frame(species = rownames(sim.null), sim.null, stringsAsFactors=FALSE)
+gen <- sapply(null.states[,1], function(x) strsplit(x, split = "_")[[1]][1], USE.NAMES = FALSE )
+null.states <- data.frame(genera = gen, null.states, stringsAsFactors=FALSE)
+rownames(null.states) <- NULL
+
+## Create the list of matrices to run BiSSE.
+## Custom functions in 'functions/data-prepare.R'
+unres <- make.unres(null.states)
+st.bisse <- make.bisse.states(null.states)
+
+

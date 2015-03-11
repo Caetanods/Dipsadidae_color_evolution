@@ -1,7 +1,9 @@
 to.genus.tree <- function(phy, genera){
     ## Picking one species per genus randomly:
     ## phy = multiphylo object
-    ## genera = data matrix. first column with the genera names. second column with species names. This is the same species of the original phylogeny.
+    ## genera = matrix or data.frame. first column with the genera names (or any unique identifier).
+    ##        Second column with the tips names, this need to be the same name of the tips of the
+    ##        original phylogeny.
     genus.list <- list()
     temp <- list()
     gu <- unique(genera[,1])
@@ -13,14 +15,14 @@ to.genus.tree <- function(phy, genera){
     genus.list <- do.call(rbind,genus.list)
     
     ## Prune the tree only to keep those species:
-    to.keep <- genus.list[,3]
+    to.keep <- genus.list[,2]
     to.prune <- phy[[1]]$tip.label[!phy[[1]]$tip.label %in% to.keep]
     phy.genus <- lapply(1:100, FUN = function(x) drop.tip(phy[[x]], tip=to.prune))
 
     ## Change the tipname to the name of the genus:
-    mm <- lapply(1:100, FUN = function(x) match(phy.genus[[x]]$tip.label, genus.list[,3]))
+    mm <- lapply(1:100, FUN = function(x) match(phy.genus[[x]]$tip.label, genus.list[,2]))
     for(i in 1:100){
-        phy.genus[[i]]$tip.label <- genus.list[mm[[i]],1]
+        phy.genus[[i]]$tip.label <- as.character(genus.list[mm[[i]],1])
     }
 
     ## Setting all tree depths equal to 1.0

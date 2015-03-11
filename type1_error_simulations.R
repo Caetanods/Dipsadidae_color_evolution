@@ -56,20 +56,4 @@ system(command = "rm ./Beast_files/xml/*.nex")
 
 to.run.BEAST <- function(xml){
     system(
-mclapply(1:length(phy.poly), 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+mclapply(1:length(phy.poly),

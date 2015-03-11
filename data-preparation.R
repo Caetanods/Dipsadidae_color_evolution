@@ -13,7 +13,8 @@ genus.name <- read.table("./data/species_list.csv", header = TRUE, sep = ",", as
 full.data <- read.csv("./data/coloration_data.csv", as.is = TRUE)
 
 ## Create the genus level tree.
-tree.genus <- to.genus.tree(tree, genus.name)
+genera <- genus.name[,-2]
+tree.genus <- to.genus.tree(tree, genera)
 
 ## Check how the tree look like:
 ## plot(tree.genus[[1]], direction="upwards"); axisPhylo(side = 4)

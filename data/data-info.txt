@@ -6,3 +6,6 @@
 
 "./coloration_data.csv"
  -- Coloration categories for the species.
+
+"./resolved_BD_phylo.RData"
+ -- Phylogenies resolved by a strict clock in Beast. All the diversity is included in those trees.

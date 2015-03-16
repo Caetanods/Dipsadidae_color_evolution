@@ -52,14 +52,22 @@ st.bisse <- make.bisse.states(null.states)
 source("./functions/analysis.R")
 
 ## Run example of analysis:
-res.null <- run.bisse(tree = tr[[1]], st = st.bisse[[1]], unres = unres[[1]], tun.steps = 10, chain.steps = 10, constrain = "FALSE")
+## res.null <- run.bisse(tree = tr[[1]], st = st.bisse[[1]], unres = unres[[1]], tun.steps = 10, chain.steps = 10, constrain = "FALSE")
 
-## Run the complete analysis:
+## Run analysis with 20 first trees:
+## This analysis will take one week to complete. I am going to use more trees in a second
+##      batch of analyses if necessary.
 ## WARNING: It depends on 'multicore' and takes time to run.
-## library(multicore)
-## index <- 1:100
-## mcmc.null <- mclapply(index, FUN = function(x) run.bisse(tree = tr[[x]], st = st.bisse[[x]], unres = unres[[x]]
-##                                , tun.steps = 100, chain.steps = 10000, constrain = "FALSE"), mc.cores = 10)
+## WARNING: It is set to use 20 cores.
+
+library(multicore)
+index <- 1:20
+mcmc.no.effect <- mclapply(index, FUN = function(x) run.bisse(tree = tr[[x]], st = st.bisse[[x]]
+          , unres = unres[[x]], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"
+          , flag = paste("no_effect_", x, sep="")), mc.cores = 20)
+
+## Save the full workspace to get all simulation results.
+save.image(file = "no_effect_run_image.RData")
 
 ###########################
 ## Load the results (Comment this part if running the complete analysis)

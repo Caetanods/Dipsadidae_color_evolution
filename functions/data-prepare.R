@@ -90,3 +90,18 @@ make.bisse.states <- function(null.states){
 
     return(states)
 }
+
+number.species <- function(x){
+    ## Function take a vector of traits. Names of vector is (repeated) genera only.
+    ## Returns genera names: c("Xenodon", "Xenodon") to c("Xenodon_sp1","Xenodon_sp2").
+    gu <- unique(x)
+    for(j in gu){
+        ww <- which(x %in% j)
+        spn <- 1
+        for(i in ww){
+            x[i] <- paste(j, "_sp", spn, sep = "")
+            spn <- spn + 1
+        }
+    }
+    return(x)
+}

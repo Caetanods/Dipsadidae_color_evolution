@@ -16,6 +16,7 @@ source("./functions/analysis.R")
 load("./data/resolved_BD_phylo.RData")
 
 ## Get results from FigShare.
+dir.create("./mcmc_BiSSE_results")
 download.file(url="http://files.figshare.com/1696849/results_100_phylo_bisse.RData"
         , destfile="./mcmc_BiSSE_results/results_100_phylo_bisse.RData")
 

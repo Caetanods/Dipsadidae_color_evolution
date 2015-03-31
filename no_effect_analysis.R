@@ -14,6 +14,11 @@ source("./functions/analysis.R")
 
 ## Load trees with all the species. Topology resolved randomly in BEAST.
 load("./data/resolved_BD_phylo.RData")
+
+## Get results from FigShare.
+download.file(url="http://files.figshare.com/1696849/results_100_phylo_bisse.RData"
+        , destfile="./mcmc_BiSSE_results/results_100_phylo_bisse.RData")
+
 ## Load results from the BiSSE mcmc for 100 trees.
 load("./mcmc_BiSSE_results/results_100_phylo_bisse.RData")
 rm(mcmc.onerate)

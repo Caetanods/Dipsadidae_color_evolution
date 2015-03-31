@@ -48,6 +48,32 @@ run.bisse <- function(tree, st, unres, tun.steps, chain.steps, constrain = "TRUE
 	print(paste(flag, "- Done!", sep=""))
 }
 
+run.bisse.mle <- function(tree, st, unres, constrain = "TRUE", flag = NULL){
+    ## Function run a maximum estimate of the BiSSE model and return results.
+    ## tree = phylo; st = vector of states; unres = unresolved matrix
+    ## constrain = use the contrained model; flag = the id of the file and print on screen.
+    
+    tree <- multi2di(tree)
+    mmm <- match(tree$tip.label, names(st))
+    lik <- make.bisse(tree, st[mmm], unresolved = unres)
+	
+	if(constrain == "TRUE"){
+		lik <- constrain(lik, lambda1~lambda0, mu1~mu0)
+		print(paste(flag, "- Constrained model.", sep=""))
+	} else {
+		print(paste(flag,"- Full model.", sep=""))
+	}
+
+    start <- starting.point.bisse(tree)
+
+    fit <- find.mle(lik, start[argnames(lik)])
+
+	## Flag:
+	print(paste(flag, "- ML estimate finished...", sep=""))
+
+    return(list(likelihood = lik, MLE = fit))
+}
+
 run.bisse.split <- function(tree, st, unres, nodes, tun.steps, chain.steps, constrain = "TRUE", flag = NULL){
     ## tree = phylo; st = vector of states; unres = unresolved matrix; steps = number of steps of the mcmc chain
     ## save = save every x steps; file = name of the file; node = nodes where to split the model.

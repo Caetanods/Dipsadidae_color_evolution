@@ -1,8 +1,8 @@
 ## This script will do some simulations to check how the type 1 error affect my results.
 
 ## Sim1: Randomizing the data on the tips.
-## For this I will create a new dataset of tip data generated with the same frequency of states of the
-##     real dataset.
+## For this I will create a new dataset of tip data generated with the same frequency of
+##     states of the real dataset.
 
 library(multicore)
 library(diversitree)

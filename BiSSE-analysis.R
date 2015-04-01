@@ -25,8 +25,9 @@ res.free <- run.bisse(tree = tree.genus[[1]], st = state, unres = unres, tun.ste
 ## Load the results (Comment this part if running the complete analysis)
 ## Download the file from FigShare.
 
-download.file(url = "http://files.figshare.com/1696849/results_100_phylo_bisse.RData", destfile = ".results_bisse.RData", method = "wget")
-load("./results_bisse.RData")
+## download.file(url = "http://files.figshare.com/1696849/results_100_phylo_bisse.RData", destfile = ".results_bisse.RData", method = "wget")
+## load("./results_bisse.RData")
+load("./mcmc_BiSSE_results/results_100_phylo_bisse.RData")
 
 ###########################
 
@@ -42,8 +43,10 @@ run.one <- paste("onerate_", seq(1:length(mcmc.onerate)), sep = "")
 run.two <- paste("tworate_", seq(1:length(mcmc.tworate)), sep = "")
 
 ## Make trace and profile plots:
-lapply(1:length(mcmc.onerate), FUN = function(x) to.mcmc.plot(mcmc.onerate[[x]][[1]], run.one[x], dir = path, burn)
-lapply(1:length(mcmc.tworate), FUN = function(x) to.mcmc.plot(mcmc.tworate[[x]][[1]], run.two[x], dir = path, burn)
+lapply(1:length(mcmc.onerate)
+     , FUN = function(x) to.mcmc.plot(mcmc.onerate[[x]][[1]], run.one[x], dir = path, burn) )
+lapply(1:length(mcmc.tworate)
+     , FUN = function(x) to.mcmc.plot(mcmc.tworate[[x]][[1]], run.two[x], dir = path, burn) )
 
 ############################
 ## Run diagnostic for convergence.
@@ -59,18 +62,17 @@ hei.two <- to.heidel.diag(mcmc.tworate)
 ## hei.one[[1]][[2]]
 ## hei.two[[1]][[2]]
 
-################################
-## The combined posterior with half burn percentage.
-## And the graphs to summarize the posterior for the parameters.
-
-burn.comb <- list()
-for(i in 1:10){
-    burn.comb[[i]] <- res.cr[[i]][[1]][(dim(res.cr[[i]][[1]])[1]*50/100):dim(res.cr[[i]][[1]])[1],]
-}
-comb <- do.call(rbind, burn.comb)
-head(comb)
-dim(comb)
-comb.one.rate <- comb
-
-## save(comb.one.rate, file = "combine.one.rate.RData")
-## write.table(comb, file = "Comb.posterior.bisse.cr.txt", sep = ",")
+## Calculate the posterior of the residency time for both the full and constrained models:
+head(mcmc.tworate[[1]][[1]])
+dim(mcmc.tworate[[1]][[1]])
+residency.st1 <- sapply(mcmc.tworate,
+                        function(x) x[[1]][5000:10000,6] / ( x[[1]][5000:10000,6] + x[[1]][5000:10000,7] )
+                        )
+residency.st0 <- sapply(mcmc.tworate,
+                        function(x) x[[1]][5000:10000,7] / ( x[[1]][5000:10000,6] + x[[1]][5000:10000,7] )
+                        )
+mn <- min( c(residency.st0, residency.st1) )
+mx <- max( c(residency.st0, residency.st1) )
+plot(density(residency.st1, from = mn, to = mx), xlim = c(mn,mx), col = "red"
+   , xlab = "Residency time", lwd = 1.5, main = "")
+lines(density(residency.st0, from = mn, to = mx), col = "grey", lwd = 1.5)

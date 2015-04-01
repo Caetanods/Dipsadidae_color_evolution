@@ -22,16 +22,18 @@ download.file(url="http://files.figshare.com/1696849/results_100_phylo_bisse.RDa
 
 ## Load results from the BiSSE mcmc for 100 trees.
 load("./mcmc_BiSSE_results/results_100_phylo_bisse.RData")
-rm(mcmc.onerate)
 
 ## Get the mean of the transition rates for each posterior for 100 trees.
-ll <- length(mcmc.tworate)
-mn <- sapply(1:ll, function(x) apply(mcmc.tworate[[x]][[1]][,c(6,7)], 2, mean) )
+## Both results from the full and constrained BiSSE models.
+mn.full <- sapply(1:100, function(x) apply(mcmc.tworate[[x]][[1]][,c(6,7)], 2, mean) )
+mn.cons <- sapply(1:100, function(x) apply(mcmc.onerate[[x]][[1]][,c(3,4)], 2, mean) )
 
 ## Simulate trait data under a Mk2 model with root = 1. Root value derived from ancestral state
 ##     estimate using BiSSE and the empirical data and trees.
-res <- lapply(1:ll, function(x) sim.character(phy[[x]], as.numeric(mn[,x]), x0=1, model = "mk2") )
-sim.null <- t(do.call(rbind, res))
+res.full <- lapply(1:100, function(x) sim.character(phy[[x]], as.numeric(mn.full[,x]), x0=1, model = "mk2") )
+sim.full.null <- t(do.call(rbind, res.full))
+res.cons <- lapply(1:100, function(x) sim.character(phy[[x]], as.numeric(mn.cons[,x]), x0=1, model = "mk2") )
+sim.cons.null <- t(do.call(rbind, res.cons))
 
 ## Drop tips to make tree a clade tree for accounting phylogenetic uncertainty while doing the
 ##     BiSSE estimates.
@@ -44,39 +46,37 @@ tr <- to.genus.tree(phy, tip.matrix)
 ## There is the same number of species (and states) as the original phylogeny.
 ## They should match without problem.
 
-null.states <- data.frame(species = rownames(sim.null), sim.null, stringsAsFactors=FALSE)
-gen <- sapply(null.states[,1], function(x) strsplit(x, split = "_")[[1]][1], USE.NAMES = FALSE )
-null.states <- data.frame(genera = gen, null.states, stringsAsFactors=FALSE)
-rownames(null.states) <- NULL
+null.full.states <- data.frame(species = rownames(sim.full.null), sim.full.null, stringsAsFactors=FALSE)
+gen <- sapply(null.full.states[,1], function(x) strsplit(x, split = "_")[[1]][1], USE.NAMES = FALSE )
+null.full.states <- data.frame(genera = gen, null.full.states, stringsAsFactors=FALSE)
+rownames(null.full.states) <- NULL
+
+null.cons.states <- data.frame(species = rownames(sim.cons.null), sim.cons.null, stringsAsFactors=FALSE)
+gen <- sapply(null.cons.states[,1], function(x) strsplit(x, split = "_")[[1]][1], USE.NAMES = FALSE )
+null.cons.states <- data.frame(genera = gen, null.cons.states, stringsAsFactors=FALSE)
+rownames(null.cons.states) <- NULL
 
 ## Create the list of matrices to run BiSSE.
 ## Custom functions in 'functions/data-prepare.R'
-unres <- make.unres(null.states)
-st.bisse <- make.bisse.states(null.states)
+full.unres <- make.unres(null.full.states)
+full.st.bisse <- make.bisse.states(null.full.states)
+cons.unres <- make.unres(null.cons.states)
+cons.st.bisse <- make.bisse.states(null.cons.states)
 
-## Run MCMC BiSSE analysis with 20 first trees:
-## This analysis will take one week to complete. I am going to use more trees in a second
-##      batch of analyses if necessary.
-## WARNING: It depends on 'multicore' and takes time to run.
-## WARNING: It is set to use 20 cores.
-
-## library(multicore)
-## index <- 1:20
-## mcmc.no.effect <- mclapply(index, FUN = function(x) run.bisse(tree = tr[[x]], st = st.bisse[[x]]
-##           , unres = unres[[x]], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"
-##           , flag = paste("no_effect_", x, sep="")), mc.cores = 20)
-
-## Save the full workspace to get all simulation results.
-## save.image(file = "no_effect_run_image.RData")
+save(full.unres, full.st.bisse, cons.st.bisse, cons.unres, file = "no_effect_sim_data.RData")
 
 ## Run a MLE BiSSE analysis with all the 100 trees:
-## This analysis will only produce a point estimate. However, the MCMC analysis of all trees
-##     will take much more time to complete.
+## Both with the full and cons simulated datasets.
+
 library(multicore)
 index <- 1:100
-mle.no.effect <- mclapply(index, FUN = function(x) run.bisse.mle(tree = tr[[x]], st = st.bisse[[x]]
-          , unres = unres[[x]], constrain = "FALSE", flag = paste("no_effect_mle", x, sep=""))
-          , mc.cores = 20)
 
-## Save simulation results:
-save(mle.no.effect, st.bisse, unres, tr, file = "no_effect_mle_results.RData")
+mle.cons.no.effect <- mclapply(index, FUN = function(x) run.bisse.mle(tree = tr[[x]], st = cons.st.bisse[[x]]
+          , unres = cons.unres[[x]], constrain = "FALSE", flag = paste("no_effect_mle", x, sep=""))
+          , mc.cores = 20)
+save(mle.cons.no.effect, file = "no_effect_cons_mle_results.RData")
+
+## mle.full.no.effect <- mclapply(index, FUN = function(x) run.bisse.mle(tree = tr[[x]], st = full.st.bisse[[x]]
+##           , unres = full.unres[[x]], constrain = "FALSE", flag = paste("no_effect_mle", x, sep=""))
+##           , mc.cores = 20)
+## save(mle.full.no.effect, file = "no_effect_full_mle_results.RData")

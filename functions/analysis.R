@@ -146,7 +146,7 @@ to.make.rd.state <- function(states, unresolved, freq0, freq1){
 
     for(i in 1:length(rd.unres$Nc)){
         nc <- rd.unres$Nc[i]
-        rd <- sample(x = c(0,1), size = nc, replace = TRUE, prob = c(st0.freq, st1.freq))
+        rd <- sample(x = c(0,1), size = nc, replace = TRUE, prob = c(freq0, freq1))
         rd.state <- c(table(rd))
         ifelse(is.na(rd.state[1]), rd.unres$n0[i] <- 0, rd.unres$n0[i] <- as.numeric(rd.state[1]))
         ifelse(is.na(rd.state[2]), rd.unres$n1[i] <- 0, rd.unres$n1[i] <- as.numeric(rd.state[2]))        
@@ -156,7 +156,7 @@ to.make.rd.state <- function(states, unresolved, freq0, freq1){
     ## Change state vector block:
     rd.st <- states
     change <- as.numeric(which(!is.na(states)))
-    rd.st[change] <- sample(x = c(0,1), size = length(change), replace = TRUE, prob = c(st0.freq, st1.freq))
+    rd.st[change] <- sample(x = c(0,1), size = length(change), replace = TRUE, prob = c(freq0, freq1))
 
     return(list(random.st = rd.st, random.unres = rd.unres))
 }

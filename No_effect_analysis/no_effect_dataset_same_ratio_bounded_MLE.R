@@ -6,6 +6,11 @@ library(diversitree)
 library(multicore)
 source("../functions/analysis.R")
 
+## Load BiSSE data:
+load("../data/data_for_BiSSE.RData")
+state <- as.numeric(st[,2])
+names(state) <- st[,1]
+
 ## Get sim data from previous run:
 load("./Same_ratio_sim_data.RData")
 

@@ -15,14 +15,19 @@ fail <- c(1,3,4,6,8)
 
 ## Making the test with only the ones that failed.
 
-sim.fit.cons <- mclapply(fail, FUN = function(x) run.bisse.mle(tree = tree.genus[[2]]
-                                  , st = sim.st[[x]][[1]], unres = sim.st[[x]][[2]]
-                                  , constrain = "TRUE", flag = paste("sim.fit.cons", x, sep=""))
-                       , mc.cores = 20)
-save(sim.fit.cons, file = "sim.fit.cons.bounded.RData")
+tasks <- list(
+    sim.fit.cons <- function() mclapply(fail, FUN = function(x) run.bisse.bound.mle(tree = tree.genus[[1]]
+                                  , st = sim.st[[x]][[1]], low = 0, up = 10
+								  , unres = sim.st[[x]][[2]], constrain = "TRUE"
+                                  , flag = paste("sim.fit.cons", x, sep=""))
+                       , mc.cores = 5),
+    sim.fit.full <- function() mclapply(fail, FUN = function(x) run.bisse.bound.mle(tree = tree.genus[[1]]
+                                  , st = sim.st[[x]][[1]], low = 0, up = 10
+                                  , unres = sim.st[[x]][[2]], constrain = "FALSE"
+                                  , flag = paste("sim.fit.full", x, sep=""))
+                       , mc.cores = 5)
+)
 
-sim.fit.full <- mclapply(index, FUN = function(x) run.bisse.mle(tree = tree.genus[[2]]
-                                  , st = sim.st[[x]][[1]], unres = sim.st[[x]][[2]]
-                                  , constrain = "FALSE", flag = paste("sim.fit.full", x, sep=""))
-                       , mc.cores = 20)
-save(sim.fit.full, file = "sim.fit.full.bounded.RData")
+out <- mclapply(tasks, function(f) f(), mc.cores = 20)
+
+save(out, file = "same.ratio.bound.mle.test.RData")

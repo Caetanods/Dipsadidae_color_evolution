@@ -37,19 +37,19 @@ sim.st <- lapply(1:100, function(x) to.make.rd.state(state, unres, freq0 = 1 - p
 save(sim.st, file = "Same_ratio_sim_data.RData")
 
 ## Start the analysis:
-## Here I am running for just one tree. The tree number 2.
+## Here I am running for just one tree. The tree number 1.
 
 library(multicore)
 index <- 1:100
 
-sim.fit.cons <- mclapply(index, FUN = function(x) run.bisse.mle(tree = tree.genus[[2]]
+sim.fit.cons <- mclapply(index, FUN = function(x) run.bisse.mle(tree = tree.genus[[1]]
                                   , st = sim.st[[x]][[1]], unres = sim.st[[x]][[2]]
                                   , constrain = "TRUE", flag = paste("sim.fit.cons", x, sep=""))
                        , mc.cores = 20)
 save(sim.fit.cons, file = "sim.fit.cons.RData")
 rm(sim.fit.cons)
 
-sim.fit.full <- mclapply(index, FUN = function(x) run.bisse.mle(tree = tree.genus[[2]]
+sim.fit.full <- mclapply(index, FUN = function(x) run.bisse.mle(tree = tree.genus[[1]]
                                   , st = sim.st[[x]][[1]], unres = sim.st[[x]][[2]]
                                   , constrain = "FALSE", flag = paste("sim.fit.full", x, sep=""))
                        , mc.cores = 20)
@@ -60,10 +60,10 @@ rm(sim.fit.full)
 ## Now get the MLE for the empirical dataset:
 ## Create state vector for BiSSE:
 
-emp.fit.full <- run.bisse.mle(tree = tree.genus[[2]], st = state, unres = unres, constrain = "FALSE"
+emp.fit.full <- run.bisse.mle(tree = tree.genus[[1]], st = state, unres = unres, constrain = "FALSE"
                             , flag = "Empirical - full")
 save(emp.fit.full, file = "emp.fit.full.RData")
 
-emp.fit.cons <- run.bisse.mle(tree = tree.genus[[2]], st = state, unres = unres, constrain = "TRUE"
+emp.fit.cons <- run.bisse.mle(tree = tree.genus[[1]], st = state, unres = unres, constrain = "TRUE"
                             , flag = "Empirical - cons")
 save(emp.fit.cons, file = "emp.fit.cons.RData")

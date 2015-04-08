@@ -18,12 +18,17 @@ load("./Same_ratio_sim_data.RData")
 ## Will perform test to check if they get better.
 fail <- c(1,3,4,6,8)
 
+## Just a test of the bounded MLE:
+## test <- run.bisse.bound.mle(tree = tree.genus[[1]], st = sim.st[[1]][[1]], low = 0, up = 10
+##                   , unres = sim.st[[1]][[2]], constrain = "TRUE"
+##                   , flag = paste("sim.fit.cons", 1, sep=""))
+
 ## Making the test with only the ones that failed.
 
 tasks <- list(
     sim.fit.cons <- function() mclapply(fail, FUN = function(x) run.bisse.bound.mle(tree = tree.genus[[1]]
                                   , st = sim.st[[x]][[1]], low = 0, up = 10
-								  , unres = sim.st[[x]][[2]], constrain = "TRUE"
+				  , unres = sim.st[[x]][[2]], constrain = "TRUE"
                                   , flag = paste("sim.fit.cons", x, sep=""))
                        , mc.cores = 5),
     sim.fit.full <- function() mclapply(fail, FUN = function(x) run.bisse.bound.mle(tree = tree.genus[[1]]

@@ -94,8 +94,10 @@ run.bisse.bound.mle <- function(tree, st, unres, low, up, constrain = "TRUE", fl
 
     start <- starting.point.bisse(tree)
 
+    ## fit <- find.mle(lik, start[argnames(lik)], method = "optim"
+	## 	   , optim.method = "L-BFGS-B", lower = low, upper = up)
     fit <- find.mle(lik, start[argnames(lik)], method = "optim"
-		   , optim.method = "L-BFGS-B", lower = low, upper = up)
+		   , lower = low, upper = up)
 
 	## Flag:
 	print(paste(flag, "- ML estimate finished...", sep=""))

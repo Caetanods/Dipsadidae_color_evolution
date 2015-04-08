@@ -15,18 +15,28 @@ for(i in ll.dat) load(i)
 ## Some of the analysis did not converged.
 ## The MLE that converged are c(2,5,7,9,10)
 cc <- c(2,5,7,9,10)
-av <- lapply(cc, function(x) anova( sim.fit.full[[x]]$MLE, cons=sim.fit.cons[[x]]$MLE ) )
-## Get delta AIC; cons AIC - full AIC; larger values prefer full model.
-delta.aic <- sapply(1:length(av), function(x) av[[x]][3][2,] - av[[x]][3][1,] )
-delta.aic
 
-## Make a lik ratio test of the empirical data:
-av.emp <- anova(emp.fit.full$MLE, cons=emp.fit.cons$MLE)
-
-## delta AIC:
-av.emp[3][2,] - av.emp[3][1,]
+## Make the LRT:
+lrt.sim.free <- lapply(cc, function(x) anova( sim.fit.full[[x]]$MLE, cons=sim.fit.cons[[x]]$MLE ) )
+p.sim.free <- sapply(1:length(lrt.sim.free), function(x) lrt.sim.free[[x]][[5]][2] )
+lrt.emp <- anova(emp.fit.full$MLE, cons=emp.fit.cons$MLE)
+p.emp <- lrt.emp[[5]][2]
 
 ## Making the simulation only 5x I can get a difference as strong or more strong than the
 ##      empirical. If I extend this simulations I am sure my empirical result
 ##      will fall within the expected for a random dataset.
 
+## I bounded the MLE estimate and re-estimated the parameters using the simulations
+##      which did not converged.
+sim.fit.cons.bound <- out[[1]]
+sim.fit.full.bound <- out[[2]]
+ll <- length(sim.fit.cons.bound)
+lrt.sim.bound <- lapply(1:ll, function(x) anova(sim.fit.full.bound[[x]]$MLE, cons=sim.fit.cons.bound[[x]]$MLE))
+p.sim.bound <- sapply(1:ll, function(x) lrt.sim.bound[[x]][[5]][2] )
+
+c(p.sim.bound, p.sim.free) > p.emp
+hist( c(p.sim.bound, p.sim.free) )
+abline(v = p.emp)
+
+pars <- sapply(1:ll, function(x) coef(sim.fit.full.bound[[x]]$MLE) )
+pars

@@ -56,11 +56,69 @@ for(i in 1:length(phy)){
 ## Prepare the HiSSE model:
 
 ## Create the hidden states matrix:
-trans.rates.hisse <- TransMatMaker(hidden.states = TRUE) ## Full model. States 0A, 0B, 1A, 1B.
-trans.rates.hisse <- ParDrop(trans.rates.hisse, c(2,3,5,7,8,9,10,12)) ## States 0A, 1A, and 1B.
+## Each is a type of model considering that we have or not hidden states:
+trans.bisse <- TransMatMaker(hidden.states = FALSE) ## Equivalent of the BiSSE model.
+trans.full <- TransMatMaker(hidden.states = TRUE) ## Full model. States 0A, 0B, 1A, 1B.
+trans.0A.1A.1B <- ParDrop(trans.full, c(2,5,7,8,9,12)) ## States 0A, 1A, and 1B.
+trans.0A.0B.1A <- ParDrop(trans.full, c(3,6,9,10,11,12)) ## States 0A, 0B, and 1A.
 
-## Create and fit the model for one tree.
-pp.hisse <- hisse(phy[[1]], st, hidden.states=TRUE, turnover.anc=c(1,2,0,3), eps.anc=c(1,2,0,3), trans.rate=trans.rates.hisse)
+## Create and fit the model for one tree and with random data.
+
+## Create random data:
+## The observed probability of state 1:
+prob <- 213 / (213 + 381)
+## Sample the state from a binomial distribution:
+ss.st <- sample(x = c(0,1), size = dim(st)[1], replace = TRUE, prob = c(1-prob,prob) )
+rd.st <- st
+rd.st$states <- ss.st
+
+## Run a series of models:
+tasks <- list(
+    # The constrained BiSSE model:
+    job1 <- function() hisse(phy[[1]], rd.st, hidden.states=FALSE, turnover.anc=c(1,1,0,0), eps.anc=c(1,1,0,0)
+                           , trans.rate=NULL),
+    # The full BiSSE model:
+    job2 <- function() hisse(phy[[1]], rd.st, hidden.states=FALSE, turnover.anc=c(1,2,0,0), eps.anc=c(1,2,0,0)
+                           , trans.rate=NULL),
+    # The constrained 0A.1A.0B.1B HiSSE model:
+    job3 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,1,1,1), eps.anc=c(1,1,1,1)
+                           , trans.rate=trans.full),
+    # The constrained 0A.1A.0B.1B, but 1B is free HiSSE model:
+    job4 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,1,1,2), eps.anc=c(1,1,1,2)
+                           , trans.rate=trans.full),
+    # The constrained 0A.1A.0B.1B, but 0B is free HiSSE model:
+    job5 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,1,2,1), eps.anc=c(1,1,2,1)
+                           , trans.rate=trans.full),
+    # The constrained 0A.1A.0B.1B, but 0B,1B are separated HiSSE model:
+    job6 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,1,2,2), eps.anc=c(1,1,2,2)
+                           , trans.rate=trans.full),
+    # The constrained 0A.1A.0B.1B, but 0B and 1B are free HiSSE model:
+    job7 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,1,2,3), eps.anc=c(1,1,2,3)
+                           , trans.rate=trans.full),
+    # The full 0A.1A.0B.1B HiSSE model:
+    job8 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,2,3,4), eps.anc=c(1,2,3,4)
+                           , trans.rate=trans.full),
+    # The constrained 0A.1A.1B HiSSE model:
+    job9 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,1,0,1), eps.anc=c(1,1,0,1)
+                           , trans.rate=trans.0A.1A.1B),
+    # The constrained 0A.1A.1B, but 1B is free HiSSE model:
+    job10 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,1,0,2), eps.anc=c(1,1,0,2)
+                           , trans.rate=trans.0A.1A.1B),
+    # The full 0A.1A.1B HiSSE model:
+    job11 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,2,0,3), eps.anc=c(1,2,0,3)
+                           , trans.rate=trans.0A.1A.1B),
+    # The constrained 0A.1A.0B HiSSE model:
+    job12 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,1,1,0), eps.anc=c(1,1,1,0)
+                           , trans.rate=trans.0A.0B.1A),
+    # The constrained 0A.1A.0B, but 0B is free HiSSE model:
+    job13 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,1,2,0), eps.anc=c(1,1,2,0)
+                           , trans.rate=trans.0A.0B.1A),
+    # The full 0A.1A.0B HiSSE model:
+    job14 <- function() hisse(phy[[1]], rd.st, hidden.states=TRUE, turnover.anc=c(1,2,3,0), eps.anc=c(1,2,3,0)
+                           , trans.rate=trans.0A.0B.1A)
+)
+
+out <- mclapply(tasks, function(f) f(), mc.cores = 20)
 
 ## Save the workspace:
-save.image("test.hisse.RData")
+save.image("hisse.all_models.RData")

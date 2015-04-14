@@ -12,6 +12,7 @@
 
 library(hisse)
 library(geiger)
+library(multicore)
 source("./functions/data-prepare.R")
 
 ####################################

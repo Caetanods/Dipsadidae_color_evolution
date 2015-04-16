@@ -123,3 +123,22 @@ out <- mclapply(tasks, function(f) f(), mc.cores = 20)
 
 ## Save the workspace:
 save.image("hisse.all_models.RData")
+
+###########################################################
+## Get and analyse results:
+load("./data/HiSSE_results_rd_data_all_models.RData")
+
+ll <- length(out)
+## The 'BiSSE' models failed. Need to correct syntax.
+aicc <- sapply(3:ll, function(x) out[[x]]$AICc )
+
+## Delta AICc for each model. Relative to the best model.
+d.aicc <- aicc - sort(aicc)[1]
+
+## Relative likelihood of each model:
+rel.lik <- exp(-0.5 * d.aicc )
+aka.weigth <- rel.lik / sum(rel.lik)
+pie(aka.weigth) ## Model 5 is the best model.
+# Model 5: The constrained 0A.1A.0B.1B, but 0B is free HiSSE model:
+
+out[[5]]

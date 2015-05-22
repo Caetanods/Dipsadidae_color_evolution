@@ -13,17 +13,15 @@ load("./mcmc_BiSSE_results/results_100_phylo_bisse.RData")
 
 two.rate.mean <- list()
 for(i in 1:100){
-    two.rate.mean[[i]] <- apply(mcmc.tworate[[i]][[1]][5000:10000,], 2, mean)
+    two.rate.mean[[i]] <- mcmc.tworate[[i]][[1]][5000:10000,]
 }
 two.rate.mean <- do.call(rbind, two.rate.mean)[,c(-1,-8)]
-two.rate.mean <- apply(two.rate.mean, 2, mean)
 
 one.rate.mean <- list()
 for(i in 1:100){
-    one.rate.mean[[i]] <- apply(mcmc.onerate[[i]][[1]][5000:10000,], 2, mean)
+    one.rate.mean[[i]] <- mcmc.onerate[[i]][[1]][5000:10000,]
 }
 one.rate.mean <- do.call(rbind, one.rate.mean)[,c(-1,-6)]
-one.rate.mean <- apply(one.rate.mean, 2, mean)
 
 ## Load results of the MLE ancestral state estimate under the BiSSE model:
 load("./data/asr_100_phylo.RData")
@@ -42,13 +40,20 @@ mean.root.one.rate <- apply(root.one.rate, 2, mean)
 ## Define functions:
 
 sims <- function(pars, time, freq.root){
-    ## Function that always return a tree with given parameters.
+    ## Function always return a tree with given parameters.
     ## This function will stop the BiSSE tree simulation using time only.
-    ## The root state is drawn for a binomial distribution.
+    ## The root state is drawn for a binomial distribution and parameters
+    ##     from a given distribution.
+    ## Arguments:
+    ## pars: data frame with 6 columns lambda0; lambda1; mu0; mu1; q01; q10.
+    ## time: numeric. the depth of the simulated tree.
+    ## freq.root: vector. frequency of the state 1 and 0 in the root.
     repeat
         {
+            ll <- sample(1:dim(pars)[1], 1)
+            par <- as.numeric(pars[ll,])
             root <- sample(c(0,1), size = 1, prob = freq.root)
-            phy <- tree.bisse(pars, max.t = time, x0 = root)
+            phy <- tree.bisse(par, max.t = time, x0 = root)
             if(!is.null(phy))
                 {
                     break
@@ -57,9 +62,8 @@ sims <- function(pars, time, freq.root){
     return(phy)
 }
 
-## Simulating data under the full model. Parameters equal to mean parameter estimates
-##   across the 100 sampled trees. Tree depth set to 1.0, equal to empirical tree.
-## The order of the parameters is lambda0; lambda1; mu0; mu1; q01; q10.
+## Simulating data under the full model. Parameters are sampled from the joint posterior distribution
+##    across 100 sampled trees. Tree depth set to 1.0, equal to empirical tree.
 
 sim.full <- lapply(1:1000, function(x) sims(pars = two.rate.mean, time = 1.0, freq.root = mean.root.two.rate) )
 sim.full.st0 <- sapply(1:1000, function(x)
@@ -70,12 +74,18 @@ sim.full.rich <- sapply(1:1000, function(x) length(sim.full[[x]]$tip.state) )
 ## Making the same set of simulations for the constrained model:
 ## Need to create a vector of paramters with six elements.
 ## The order of the parameters is lambda0; lambda1; mu0; mu1; q01; q10.
-one.rate.par <- c(one.rate.mean[1],one.rate.mean[1],one.rate.mean[2], one.rate.mean[2], one.rate.mean[3:4])
+one.rate.par <- cbind( one.rate.mean[,1], one.rate.mean[,1]
+                     , one.rate.mean[,2], one.rate.mean[,2]
+                     , one.rate.mean[,3:4]
+                      )
 sim.con <- lapply(1:1000, function(x) sims(pars = one.rate.par, time = 1.0, freq.root = mean.root.one.rate) )
 sim.con.st0 <- sapply(1:1000, function(x)
     (length(sim.con[[x]]$tip.state) - sum(sim.con[[x]]$tip.state)) / length(sim.con[[x]]$tip.state)
                        )
 sim.con.rich <- sapply(1:1000, function(x) length(sim.con[[x]]$tip.state) )
+
+## Save results.
+save(sim.full.st0, sim.full.rich, sim.con.st0, sim.con.rich, file = "./data/post_check.RData")
 
 ##########################################################################
 ## Plotting the results:
@@ -102,3 +112,12 @@ abline(v = 0.64, col = "blue", lty = 2, lwd = 1.5)
 legend(x = 0, y = 140, legend = "Observed", col = "blue", lty = 2, lwd = 1.5, bty = "n")
 
 dev.off()
+
+## What is the proportion of the distribution more extreme than the observed values?
+
+## Full model:
+length( which(sim.full.rich > 594) ) / 1000
+length( which(sim.full.st0 > 0.64) ) / 1000
+## Constrained model:
+length( which(sim.con.rich > 594) ) / 1000
+length( which(sim.con.st0 > 0.64) ) / 1000

@@ -121,3 +121,5 @@ length( which(sim.full.st0 > 0.64) ) / 1000
 ## Constrained model:
 length( which(sim.con.rich > 594) ) / 1000
 length( which(sim.con.st0 > 0.64) ) / 1000
+
+mean(sim.con.rich)

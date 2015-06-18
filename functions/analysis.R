@@ -245,3 +245,29 @@ to.make.poly <- function(diver, phy){
     }
     return(phy)
 }
+
+dic.mcmcsamples <- function(x, burnin=0, lik){
+  ## Compute deviance information criterion from mcmcsamples
+  ## This is the version corrected. It will work with the RCran version
+  ##  of 'diversitree'.
+
+  ## if (!inherits(x, "mcmcsamples"))
+  ##  stop("this function is only designed for diversitree's mcmcsamples object")
+  ## lik <- attr(x, "func")
+  p <- coef(x, burnin=burnin)
+  dev <- -2 * apply(p, 1, lik)
+
+  ## estimate effective number of parameters
+  dbar <- mean(dev)
+
+  ## deviance of posterior means:
+  post.means <- colMeans(p)
+
+  ## evaluate deviance at the mean posterior estimate
+  dhat <- -2 * lik(post.means)
+  pd <- dbar - dhat
+
+  ## calculate dic
+  dic <- dbar + pd
+  unname(dic)
+}

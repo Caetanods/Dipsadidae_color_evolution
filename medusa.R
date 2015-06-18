@@ -6,6 +6,7 @@
 library(geiger)
 
 source("./functions/analysis.R")
+source("./functions/converge-and-plots.R")
 load("./data/data_for_BiSSE.RData")
 
 ## Make richness table for MEDUSA.
@@ -80,23 +81,40 @@ mn <- apply(res, 1, min)
 mx <- apply(res, 1, max)
 nm <- rownames(res)
 
-pdf("Summarize_medusa.pdf", width = 14)
-plot(x=1:69, y = md, col = "blue", ylim = c(0,50), pch = 4
-   , axes = FALSE, ylab = "Medusa - yule rate", xlab = "")
-axis(side = 2)
-text(1:69, par("usr")[3]-0.25, srt = 60, adj= 1, xpd = TRUE, labels = nm, cex=0.8)
-points(x=1:69, y = mn, pch = 20)
-points(x=1:69, y = mx, pch = 20)
-for(i in 1:69) lines(x = c(i,i), y = c(mn[i],mx[i]), lty = 2 )
+## Get same order from the MCC in the Figure 1 of manuscript:
+## Load the ladderized tree:
+mcc.tr <- read.tree("./data/ladder.tree.mcc.tre")
+
+pdf("mcc.tree.pdf", width = 7, height = 14)
+plot.phylo(mcc.tr, no.margin = TRUE)
 dev.off()
 
-pdf("Summarize medusa boxblot.pdf", width = 14)
-boxplot(t(res), axes = FALSE, ylab = "Medusa - yule rate", xlab = "")
-axis(side = 2)
-text(1:69, par("usr")[3]-0.25, srt = 60, adj= 1, xpd = TRUE, labels = nm, cex=0.8)
+spp <- mcc.tr$tip.label ## Need to get the reverse of the string vector.
+
+## Create group of colors:
+
+group <- rep("grey", times = length(spp) )
+
+green <- c("Uromacer","Arrhyton","Haitiophis","Magliophis","Alsophis","Borikenophis"
+          ,"Schwartzophis","Hypsirhynchus","Antillophis","Cubophis","Caraiba","Darlingtonia"
+          ,"Ialtris") ## 2ca02cff
+blue <- c("Hydrops","Pseudoeryx") ## 0055d4ff
+red <- c("Pseudotomodon","Tachymenis","Tomodon","Thamnodynastes","Ptychophis") ## d40000ff
+
+group[which(spp %in% green)] <- "#2ca02cff"
+group[which(spp %in% blue)] <- "#0055d4ff"
+group[which(spp %in% red)] <- "#d40000ff"
+
+pdf("Summarize medusa boxblot.pdf", width = 7, height = 14)
+## Margin: "bottom, left, top and right"
+par( mar=c(5.0, 5.0, 0.5, 1.0) )
+boxplot(t(res[spp,]), axes = FALSE, ylab = "", xlab = "Medusa - yule rate"
+      , outpch = 20, outcex = 0.8, horizontal = "TRUE", col = group)
+axis(side = 1)
+## text(1:69, par("usr")[3]-0.25, srt = 60, adj= 1, xpd = TRUE, labels = rownames(res[spp,]), cex=0.8)
+text(par("usr")[3]+1.5, 1:69, adj= 1, xpd = TRUE, labels = rownames(res[spp,]), cex=0.8)
 dev.off()
 
 ## Plotting medusa results
-source("medusa.plot.R")
-my.medusa(shifts[[5]], edge.width = 2, )
+my.medusa(shifts[[5]], edge.width = 2 )
 ## This is a corrected version of medusa. Need to push to geiger.

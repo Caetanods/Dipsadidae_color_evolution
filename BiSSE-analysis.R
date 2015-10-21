@@ -1,9 +1,14 @@
 ## This is the main script to reproduce the analysis.
 ## This will run the analysis and make convergence checks using the coda package.
+## The script is divided into the main analysis and three alternative categorizations.
+## Please check the text of the manuscript for more details of the analysis.
 
 library(diversitree)
-
 source("./functions/analysis.R")
+
+#############################################################################################
+## MAIN ANALYSIS AND CONVERGENCE CHECK
+
 load("./data/data_for_BiSSE.RData")
 
 ## Create state vector for BiSSE:
@@ -54,15 +59,63 @@ hei.two <- to.heidel.diag(mcmc.tworate)
 ## hei.one[[1]][[2]]
 ## hei.two[[1]][[2]]
 
-## Calculate the posterior of the residency time for both the full and constrained models:
-residency.st1 <- sapply(mcmc.tworate,
-                        function(x) x[[1]][5000:10000,6] / ( x[[1]][5000:10000,6] + x[[1]][5000:10000,7] )
-                        )
-residency.st0 <- sapply(mcmc.tworate,
-                        function(x) x[[1]][5000:10000,7] / ( x[[1]][5000:10000,6] + x[[1]][5000:10000,7] )
-                        )
-mn <- min( c(residency.st0, residency.st1) )
-mx <- max( c(residency.st0, residency.st1) )
-plot(density(residency.st1, from = mn, to = mx), xlim = c(mn,mx), col = "red"
-   , xlab = "Residency time", lwd = 1.5, main = "")
-lines(density(residency.st0, from = mn, to = mx), col = "grey", lwd = 1.5)
+#############################################################################################
+
+#############################################################################################
+## ALTERNATIVE CATEGORIZATION A: ANALYSIS AND CONVERGENCE CHECK.
+## In this categorization the species with bright colors only in the venter are set to the cryptic
+##      category.
+load("./data/data_for_BiSSE-alt.RData")
+
+stateA <- as.numeric(st.alt[[1]][,2])
+names(stateA) <- st.alt[[1]][,1]
+
+## Run example of analysis:
+res.constrain.A <- run.bisse(tree = tree.genus[[1]], st = stateA, unres = unres.alt[[1]], tun.steps = 10, chain.steps = 10, constrain = "TRUE")
+res.free.A <- run.bisse(tree = tree.genus[[1]], st = stateA, unres = unres.alt[[1]], tun.steps = 10, chain.steps = 10, constrain = "FALSE")
+
+## Run the complete analysis (with only the first 5 trees):
+## WARNING: It depends on 'multicore' and takes time to run.
+## library(multicore)
+## index <- 1:5
+## mcmc.onerate.A <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateA, unres = unres.alt[[1]], tun.steps = 100, chain.steps = 10000, constrain = "TRUE"), mc.cores = 10)
+## mcmc.tworate.A <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateA, unres = unres.alt[[1]], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"), mc.cores = 10)
+
+#############################################################################################
+## ALTERNATIVE CATEGORIZATION B: ANALYSIS AND CONVERGENCE CHECK.
+## In this categorization the all contrasting species defined based on juveniles are set to the
+##      cryptic state. In this analysis only the adult coloration patterns are explored.
+
+stateB <- as.numeric(st.alt[[2]][,2])
+names(stateB) <- st.alt[[2]][,1]
+
+## Run example of analysis:
+res.constrain.B <- run.bisse(tree = tree.genus[[1]], st = stateB, unres = unres.alt[[2]], tun.steps = 10, chain.steps = 10, constrain = "TRUE")
+res.free.B <- run.bisse(tree = tree.genus[[1]], st = stateB, unres = unres.alt[[2]], tun.steps = 10, chain.steps = 10, constrain = "FALSE")
+
+## Run the complete analysis (with only the first 5 trees):
+## WARNING: It depends on 'multicore' and takes time to run.
+## library(multicore)
+## index <- 1:5
+## mcmc.onerate.B <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateB, unres = unres.alt[[2]], tun.steps = 100, chain.steps = 10000, constrain = "TRUE"), mc.cores = 10)
+## mcmc.tworate.B <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateB, unres = unres.alt[[2]], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"), mc.cores = 10)
+
+#############################################################################################
+## ALTERNATIVE CATEGORIZATION C: ANALYSIS AND CONVERGENCE CHECK.
+## This time the category 1 are species that have color patterns that are similar to true coral snakes
+##      and category 0 includes both species that are contrasting but do not look like coral snakes
+##      and cryptic species that do not show contrasting patterns.
+
+stateC <- as.numeric(st.alt[[3]][,2])
+names(stateC) <- st.alt[[3]][,1]
+
+## Run example of analysis:
+res.constrain.C <- run.bisse(tree = tree.genus[[1]], st = stateC, unres = unres.alt[[3]], tun.steps = 2, chain.steps = 5, constrain = "TRUE")
+res.free.C <- run.bisse(tree = tree.genus[[1]], st = stateC, unres = unres.alt[[3]], tun.steps = 2, chain.steps = 5, constrain = "FALSE")
+
+## Run the complete analysis (with only the first 5 trees):
+## WARNING: It depends on 'multicore' and takes time to run.
+## library(multicore)
+## index <- 1:5
+## mcmc.onerate.C <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateC, unres = unres.alt[[3]], tun.steps = 100, chain.steps = 10000, constrain = "TRUE"), mc.cores = 10)
+## mcmc.tworate.C <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateC, unres = unres.alt[[3]], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"), mc.cores = 10)

@@ -271,3 +271,26 @@ dic.mcmcsamples <- function(x, burnin=0, lik){
   dic <- dbar + pd
   unname(dic)
 }
+
+sims <- function(pars, time, freq.root){
+    ## Function always return a tree with given parameters.
+    ## This function will stop the BiSSE tree simulation using time only.
+    ## The root state is drawn for a binomial distribution and parameters
+    ##     from a given distribution.
+    ## Arguments:
+    ## pars: data frame with 6 columns lambda0; lambda1; mu0; mu1; q01; q10.
+    ## time: numeric. the depth of the simulated tree.
+    ## freq.root: vector. frequency of the state 1 and 0 in the root.
+    repeat
+        {
+            ll <- sample(1:dim(pars)[1], 1)
+            par <- as.numeric(pars[ll,])
+            root <- sample(c(0,1), size = 1, prob = freq.root)
+            phy <- tree.bisse(par, max.t = time, x0 = root)
+            if(!is.null(phy))
+                {
+                    break
+                }
+        }
+    return(phy)
+}

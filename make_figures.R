@@ -2,11 +2,106 @@
 ## Some of the figures were finished in InkScape for aesthetics. But the data points are
 ##     as ploted in R.
 
-require(diversitree)
+library(diversitree)
+library(geiger)
 
 source("./functions/analysis.R")
-load("./mcmc_BiSSE_results/results_100_phylo_bisse.RData")
+load("./data/results_100_phylo_bisse.RData")
 load("./data/data_for_BiSSE.RData")
+tree.mcc <- read.tree("./data/ladder.tree.mcc.tre")
+
+######################################################################################
+## Figure 1 - Phylogeny, ancestral states and diversity at the tips.
+
+## To make this figure need to first make ancestral state reconstruction on the MCC tree.
+
+## Set depth of the MCC to 1 and solve polytomies for ancestral state estimation.
+tree.mcc <- rescale(tree.mcc, model = "depth", 1.0)
+tree.mcc <- multi2di(tree.mcc)
+
+## Now get parameter estimates. For this going to use the grand mean of the mean estimates
+##     from the posterior densities under the simple BiSSE model across the 100 phylogenies
+##     sampled from the posterior distribution from Beast.
+post <- seq(from=dim(mcmc.onerate[[1]][[1]])[1]/2, to=dim(mcmc.onerate[[1]][[1]])[1])
+md <- list()
+for(i in 1:length(mcmc.onerate)){
+    md[[i]] <- sapply(mcmc.onerate[[i]][[1]][post,], mean)
+}
+md <- do.call(rbind, md)
+
+## Simple plot to check the uncertainty in the parameter estimates across phylogenies:
+boxplot(md[,-c(1,6)])
+
+## Make the MLE estimate of the marginal ancestral reconstruction. This estimate use the simpler
+##      BiSSE model that estimates a single net diversification for both traits. Thus, states do
+##      not affect rates of extinction or speciation.
+
+## In order to incorporate the variation in the estimate of the parameters for the simpler BiSSE
+##      model in the ancestral state estimates we will make the MLE of the marginal ancestral state
+##      under the 100 means from the different posterior distribution. The plot will show an
+##      average of such estimates.
+
+state <- as.numeric(st[,2])
+names(state) <- st[,1]
+lik <- make.bisse(tree.mcc, states = state, unresolved = unres)
+lik <- constrain(lik, lambda1~lambda0, mu1~mu0)
+md <- md[,-c(1,6)]
+st <- apply(md, 1, function(x) asr.marginal(lik, x)[2,])
+st.avg2 <- rowMeans(st)
+st.avg1 <- 1 - st.avg2
+st <- unname(rbind(st.avg1, st.avg2))
+
+## Making the figure:
+## Preparing the bar with the proportion of states in each genera:
+mm <- which(!tree.mcc$tip.label %in% unres[,1])
+st.bar <- data.frame(tip.label = tree.mcc$tip.label[mm], state = state[tree.mcc$tip.label[mm]])
+rownames(st.bar) <- NULL
+st.bar <- data.frame(st.bar, n0 = rep(0, times = dim(st.bar)[1]), n1 = rep(0, times = dim(st.bar)[1]))
+st.bar$n0[which(st.bar$state == 0)] <- 1
+st.bar$n1[which(st.bar$state == 1)] <- 1
+st.bar <- st.bar[,-2]
+
+st.bar.total <- unres[,-4]
+st.bar.total <- rbind(st.bar.total, st.bar)
+
+mmm <- match(tree.mcc$tip.label, st.bar.total[,1])
+tt <- st.bar.total[mmm,2] + st.bar.total[mmm,3]
+names(tt) <- tree.mcc$tip.label
+
+## Have aposematic and contrasting species.
+st1 <- which(!st.bar.total[mmm,3] == 0 & !st.bar.total[mmm,2] == 0)
+## Have only contrasting species.
+st11 <- which(st.bar.total[mmm,2] == 0)
+## Have only cryptic species.
+st0 <- which(!st.bar.total[mmm,2] == 0)
+
+pdf("Figure_1_Caetano_et_al_2016.pdf", width = 15, height = 20)
+plot.phylo(tree.mcc, font = 4, label.offset = 0.03, cex = 1.0, adj = 1, x.lim = 2, edge.width = 3)
+nodelabels(pie=t(st), piecol=c("grey","red"), cex=.35)
+axisPhylo(side = 3, pos = c(70,0))
+
+ad.t0 <- 1.275; incr <- 0.007; wd <- 0.2
+
+## Add bars in three sections: All gray, red in top of gray, all red.
+for(i in 1:length(st0)){ ## st0
+    polygon(x = c(ad.t0, ad.t0+(incr*st.bar.total[mmm,2][st0[i]]), ad.t0+(incr*st.bar.total[mmm,2][st0[i]])
+                , ad.t0), y = c(st0[i]-wd, st0[i]-wd, st0[i]+wd, st0[i]+wd), col = "grey", lend = 1)
+}
+for(i in 1:length(st1)){ ## st1 on top of st0
+    polygon(x = c(ad.t0+(incr*st.bar.total[mmm,2][st1[i]])
+                , ad.t0+(incr*st.bar.total[mmm,2][st1[i]])+(incr*st.bar.total[mmm,3][st1[i]])
+                , ad.t0+(incr*st.bar.total[mmm,2][st1[i]])+(incr*st.bar.total[mmm,3][st1[i]])
+                , ad.t0+(incr*st.bar.total[mmm,2][st1[i]]))
+          , y = c(st1[i]-wd, st1[i]-wd, st1[i]+wd, st1[i]+wd), col = "red", lend = 1)
+}
+for(i in 1:length(st11)){ ## st1 only
+    polygon(x = c(ad.t0, ad.t0+(incr*st.bar.total[mmm,3][st11[i]]), ad.t0+(incr*st.bar.total[mmm,3][st11[i]])
+                , ad.t0), y = c(st11[i]-wd, st11[i]-wd, st11[i]+wd, st11[i]+wd), col = "red", lend = 1)
+}
+dev.off()
+
+######################################################################################
+## Figure 2 - Not produced in R.
 
 ######################################################################################
 ## Figure 3 - Net diversification plot:
@@ -22,7 +117,6 @@ start <- starting.point.bisse(tree.genus[[1]])
 r <- 1 / 2 * (start[1] - start[3]) ## This is the 'rate' I used for the prior.
 a <- seq(0,15, by = 0.01)
 a.p <- r * exp(-r * a) ## Prior distribution for plots.
-plot(density(a.p))
 
 ## Calculate the mean value of the distributions:
 md.lambda0.one <- sapply(post.one.rate[2] - post.one.rate[3], median)
@@ -59,7 +153,7 @@ br.two.q0 <- to.break(post.two.rate[,7], wd2)
 br.one.q1 <- to.break(post.one.rate[,4], wd2)
 br.one.q0 <- to.break(post.one.rate[,5], wd2)
 
-pdf(file = "Figure_3_parameter_estimates.pdf", width = 14, height = 7)
+pdf(file = "Figure_3_Caetano_et_al_2016.pdf", width = 14, height = 7)
 par(mfrow = c(1,2))
 
 ## Make the graph with the net diversification rates (left):
@@ -108,8 +202,8 @@ axis(side = 2); axis(side = 1, pos = -0.05)
 mtext("Net diversification", 1, line=2.5, cex = 1.5)
 mtext("Probability density", 2, line=2.5, cex = 1.5)
 legend(x = 6.0, y = 0.8,legend = c("cryptic","contrasting","color independent", "prior")
-       , fill = c("#00000050","#ff000060","#00ff0040", "#0000ff40")
-       , border = c("#00000070","#ff000080","#00ff0060", "#0000ff60")
+       , fill = c("#00000050","#ff000060","#fecd0060", "#0000ff40")
+       , border = c("#00000070","#ff000080","#fecd0080", "#0000ff60")
        , bty = "n", ncol = 1, cex = 1.5)
 
 ## Make the graph with the transition rates (right):

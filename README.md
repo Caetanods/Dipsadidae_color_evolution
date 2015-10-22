@@ -22,5 +22,8 @@ The list of data used in all analyses:
  - "./data/dic_BiSSE_MCMC_results.RData"
  - "./data/asr_100_phylo.RData"
  - "./data/post_check.RData"
+ - "./data/medusa.RData"
+ - "./data/ladder.tree.mcc.tre"
+ - "./data/no_effect_results.RData"
 
 Note that only few changes are needed in order to run a similar analysis in your own dataset.

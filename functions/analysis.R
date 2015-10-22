@@ -294,3 +294,40 @@ sims <- function(pars, time, freq.root){
         }
     return(phy)
 }
+
+get.medusa.rates <- function(medusa.res, phy){
+    ## Function to summarize the results from the MEDUSA analysis.
+    ## This function produces a table with the tip names and the rate associated with
+    ## each tip.
+    ## medusa.res = res object from medusa
+    ## phy = phylogenetic tree
+
+    model <- cbind(medusa.res[[3]][[4]], medusa.res[[3]][[1]])
+    
+    tt.l <- list()
+    ss <- vector()
+
+    for(i in 1:dim(model)[1] ){
+        tt <- tips(tree.genus[[2]], as.numeric(model[i,1]) )
+        ss[i] <- length(tt)
+        tt.m <- cbind(tt, model[i,2])
+        tt.l[[i]] <- tt.m
+        res <- list(shifts = tt.l, length = ss)
+    }
+
+    ord <- order(res$length)
+    for( j in 1:(length(ord)-1) ){
+        for( k in (j+1):length(ord) ){
+            index <- res[[ 1 ]][[ ord[k] ]][ , 1 ] %in% res[[ 1 ]][[ ord[j] ]][ , 1 ]
+            if( sum(index) != 0 ){
+                res[[ 1 ]][[ ord[k] ]][index , 2] <- res[[ 1 ]][[ ord[j] ]][ , 2]
+            } else { }
+        }
+    }
+    
+    res.t <- res[[ 1 ]][[ ord[length(ord)] ]]
+    out <- as.numeric(res.t[,2])
+    names(out) <- res.t[,1]    
+
+    return( out )
+}

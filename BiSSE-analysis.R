@@ -75,8 +75,8 @@ res.constrain.A <- run.bisse(tree = tree.genus[[1]], st = stateA, unres = unres.
 res.free.A <- run.bisse(tree = tree.genus[[1]], st = stateA, unres = unres.alt[[1]], tun.steps = 10, chain.steps = 10, constrain = "FALSE")
 
 ## Run the complete analysis (with only the first 5 trees):
-## WARNING: It depends on 'multicore' and takes time to run.
-## library(multicore)
+## WARNING: It depends on 'parallel' and takes time to run.
+## library(parallel)
 ## index <- 1:5
 ## mcmc.onerate.A <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateA, unres = unres.alt[[1]], tun.steps = 100, chain.steps = 10000, constrain = "TRUE"), mc.cores = 10)
 ## mcmc.tworate.A <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateA, unres = unres.alt[[1]], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"), mc.cores = 10)
@@ -94,8 +94,8 @@ res.constrain.B <- run.bisse(tree = tree.genus[[1]], st = stateB, unres = unres.
 res.free.B <- run.bisse(tree = tree.genus[[1]], st = stateB, unres = unres.alt[[2]], tun.steps = 10, chain.steps = 10, constrain = "FALSE")
 
 ## Run the complete analysis (with only the first 5 trees):
-## WARNING: It depends on 'multicore' and takes time to run.
-## library(multicore)
+## WARNING: It depends on 'parallel' and takes time to run.
+## library(parallel)
 ## index <- 1:5
 ## mcmc.onerate.B <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateB, unres = unres.alt[[2]], tun.steps = 100, chain.steps = 10000, constrain = "TRUE"), mc.cores = 10)
 ## mcmc.tworate.B <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateB, unres = unres.alt[[2]], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"), mc.cores = 10)
@@ -114,8 +114,8 @@ res.constrain.C <- run.bisse(tree = tree.genus[[1]], st = stateC, unres = unres.
 res.free.C <- run.bisse(tree = tree.genus[[1]], st = stateC, unres = unres.alt[[3]], tun.steps = 2, chain.steps = 5, constrain = "FALSE")
 
 ## Run the complete analysis (with only the first 5 trees):
-## WARNING: It depends on 'multicore' and takes time to run.
-## library(multicore)
+## WARNING: It depends on 'parallel' and takes time to run.
+## library(parallel)
 ## index <- 1:5
 ## mcmc.onerate.C <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateC, unres = unres.alt[[3]], tun.steps = 100, chain.steps = 10000, constrain = "TRUE"), mc.cores = 10)
 ## mcmc.tworate.C <- mclapply(index, FUN = function(x) run.bisse(tree = tree.genus[[x]], st = stateC, unres = unres.alt[[3]], tun.steps = 100, chain.steps = 10000, constrain = "FALSE"), mc.cores = 10)

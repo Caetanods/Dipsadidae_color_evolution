@@ -1,4 +1,4 @@
-snake.colors.of.deception
+Color pattern evolution in Dipsadidae snakes
 =========================
 
 R code for the article "Daniel S. Caetano, Laura R.V. Alencar, Paulo Passos, Marcio Martins, Felipe G. Grazziotin, & Hussam Zaher. The colors of deception: Evolution of warning signals in Neotropical snakes (Colubroidea: Dipsadidae)" To be submitted to Evolution.

@@ -11,24 +11,24 @@ Note that some of the analyses and simulations take a long time to run. In those
 
 Run the scripts in the following order:
 
- - data_preparation.R
+ - **data_preparation.R**
  
  Prepares all the data for the analyses.
- - BiSSE_analyses.R
+ - **BiSSE_analyses.R**
  
  Makes all analyses. Including the main categorization and the three alternative definitions for the coloration patterns.
  
- - model_selection_and_posterior_predictive_check.R
+ - **model_selection_and_posterior_predictive_check.R**
  
  Makes the model selection for all the MCMC results using Deviance Information Criteria (DIC). Also make posterior predictive checks to test the adequacy of the model to the empirical data.
  
- - medusa_analyses.R
+ - **medusa_analyses.R**
  
  Performs MEDUSA analyses across the 100 phylogenies sampled from the posterior distribution of a Beast 1.8 phylogeny estimation with a concatenated dataset.
  
- - BiSSE_null_model_simulations.R
+ - **BiSSE_null_model_simulations.R**
  
  Performs Likelihood Ratio Test (LRT) simulations under the BiSSE null model following Rabosky and Goldberg, 2015.
- - make_figures.R
+ - **make_figures.R**
  
  Produces all the figures reported in the manucript.

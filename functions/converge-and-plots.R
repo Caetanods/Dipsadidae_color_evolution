@@ -2,14 +2,14 @@ to.heidel.diag <- function(bisse){
     ## bisse: output of the 'run.bisse' function.
     
     make.heidel <- function(mcmc){
-    res <- mcmc[,c(-1,-8)]
-    mc.dat <- as.mcmc(res)
+    mc.dat <- as.mcmc(mcmc)
     sm <- summary(mc.dat)
     hei <- heidel.diag(mc.dat)
     return(list(summary = sm, diagnostic = hei))
     }
 
-    out <- lapply(1:length(bisse), FUN = function(x) make.heidel(bisse[[x]][[1]]) )
+    out <- lapply(bisse, make.heidel)
+    return(out)
 }
 
 my.medusa <- function (x, time = TRUE, ...){

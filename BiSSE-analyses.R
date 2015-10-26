@@ -120,7 +120,7 @@ res.free.C <- run.bisse(tree = tree.genus[[1]], st = stateC, unres = unres.alt[[
 ## Download the file from FigShare.
 download.file(url = "http://files.figshare.com/2367824/results_bisse_mcmc_alt_A_B.RData"
             , destfile = "./data/results_bisse_mcmc_alt_A_B.RData", method = "wget")
-load("./data/results_bisse_mcmc_alt_A_B.RData")
+load("./data/results_bisse_mcmc_alt_ABC.RData")
 
 ## Check for convergence using the coda package:
 library(coda)
@@ -138,3 +138,20 @@ hei.two.B <- to.heidel.diag(mcmc.tworate.B)
 ## Summary stats of the mcmc run:
 ## hei.one.A[[1]][[1]]
 ## hei.two.A[[1]][[1]]
+
+############################
+## RESULTS: Alternative categorization C. Mimics vs. non-mimics.
+
+burn <- lapply(mcmc.onerate.C, function(x) x[5000:10000,] )
+post.onerate <- do.call(rbind, burn)
+summary(post.onerate)
+
+burn <- lapply(mcmc.tworate.C, function(x) x[5000:10000,] )
+post.tworate <- do.call(rbind, burn)
+summary(post.tworate)
+
+hei.one.C <- to.heidel.diag(mcmc.onerate.C)
+hei.two.C <- to.heidel.diag(mcmc.tworate.C)
+
+hei.one.C
+hei.two.C

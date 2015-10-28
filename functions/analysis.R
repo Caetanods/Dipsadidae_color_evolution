@@ -254,7 +254,8 @@ dic.mcmcsamples <- function(x, burnin=0, lik){
   ## if (!inherits(x, "mcmcsamples"))
   ##  stop("this function is only designed for diversitree's mcmcsamples object")
   ## lik <- attr(x, "func")
-  p <- coef(x, burnin=burnin)
+  ## p <- coef(x, burnin=burnin)
+  p <- x  ## Because I am reading from a csv. So 'x' is a matrix with parameter values.
   dev <- -2 * apply(p, 1, lik)
 
   ## estimate effective number of parameters

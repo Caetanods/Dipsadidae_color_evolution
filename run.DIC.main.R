@@ -25,6 +25,9 @@ foo.dic.two <- function(res, tree, st, unres){
 load("../data/data_for_BiSSE.RData")
 load("../data/results_100_phylo_bisse.RData")
 
+state <- as.numeric(st[,2])
+names(state) <- st[,1]
+
 ## Run the DIC estimate in parallel.
 ## This is going to run only the first 5 mcmc chains.
 ## Just to check whether the previous results were ok.

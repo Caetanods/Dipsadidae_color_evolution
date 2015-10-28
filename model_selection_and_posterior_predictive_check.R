@@ -31,41 +31,43 @@ load("./data/results_100_phylo_bisse.RData")
 ## WARNING: This is a long process and the following line is set up to run using 15 cores.
 ## Uncomment to run.
 
-## ## Calculate DIC for the trait-independent (simpler) BiSSE model:
-## foo.dic.one <- function(res, tree, st, unres){
-##     tree <- multi2di(tree)
-##     mmm <- match(tree$tip.label, names(st))
-##     lik <- make.bisse(tree, st[mmm], unresolved = unres)
-##     lik.c <- constrain(lik, lambda1~lambda0, mu1~mu0)
-##     b <- dim(res)[1]*50/100
-##     dic.one <- dic.mcmcsamples(res, burnin = b, lik = lik.c)
-##     return(dic.one)
-## }
+## Calculate DIC for the trait-independent (simpler) BiSSE model:
+foo.dic.one <- function(res, tree, st, unres){
+    tree <- multi2di(tree)
+    mmm <- match(tree$tip.label, names(st))
+    lik <- make.bisse(tree, st[mmm], unresolved = unres)
+    lik.c <- constrain(lik, lambda1~lambda0, mu1~mu0)
+    b <- dim(res)[1]*50/100
+    dic.one <- dic.mcmcsamples(res, burnin = b, lik = lik.c)
+    return(dic.one)
+}
 
-## dic.one <- mclapply(1:length(mcmc.onerate), FUN = function(x)
-##                   foo.dic.one(mcmc.onerate[[x]][[1]], tree.genus[[x]], st, unres), mc.cores = 15)
+dic.one <- mclapply(1:length(mcmc.onerate), FUN = function(x)
+                  foo.dic.one(mcmc.onerate[[x]][[1]], tree.genus[[x]], st, unres), mc.cores = 15)
 
-## ## Calculate for the trait-dependent (more complex) BiSSE model:
+## Calculate for the trait-dependent (more complex) BiSSE model:
 
-## foo.dic.two <- function(res, tree, st, unres){
-##     tree <- multi2di(tree)
-##     mmm <- match(tree$tip.label, names(st))
-##     lik <- make.bisse(tree, st[mmm], unresolved = unres)
-##     b <- dim(res)[1]*50/100
-##     dic.two <- dic.mcmcsamples(res, burnin = b, lik = lik)
-##     return(dic.two)
-## }
-## dic.two <- mclapply(1:length(mcmc.onerate), FUN = function(x)
-##                   foo.dic.two(mcmc.onerate[[x]][[1]], tree.genus[[x]], st, unres), mc.cores = 15)
+foo.dic.two <- function(res, tree, st, unres){
+    tree <- multi2di(tree)
+    mmm <- match(tree$tip.label, names(st))
+    lik <- make.bisse(tree, st[mmm], unresolved = unres)
+    b <- dim(res)[1]*50/100
+    dic.two <- dic.mcmcsamples(res, burnin = b, lik = lik)
+    return(dic.two)
+}
+dic.two <- mclapply(1:length(mcmc.tworate), FUN = function(x)
+                  foo.dic.two(mcmc.tworate[[x]][[1]], tree.genus[[x]], st, unres), mc.cores = 15)
 
-## ## Get the result as vectors:
-## dic.one <- as.vector( do.call(cbind, dic.one) )
-## dic.two <- as.vector( do.call(cbind, dic.two) )
+## Get the result as vectors:
+dic.one <- as.vector( do.call(cbind, dic.one) )
+dic.two <- as.vector( do.call(cbind, dic.two) )
 
 ## save(dic.two, dic.one, file = "./data/dic_BiSSE_MCMC_results.RData")
 
 ##############################################################
 ## Analysis of the result of DIC and the model selection:
+
+## DIC RESULTS FOR THE MAIN ANALYSIS. CATEGORY CONTRASTING VS. CRYPTIC:
 
 ## Load the results of the DIC estimate.
 load("./data/dic_BiSSE_MCMC_results.RData")
@@ -91,8 +93,21 @@ abline(v=median(dif), col = "green", lty = 4, lwd = 2)
 ##       rich, the full BiSSE model.
 
 ############################################################################
-## DIC ANALYSIS AND RESULTS FOR THE ALTERNATIVE CATEGORIES:
+## DIC ANALYSIS AND RESULTS FOR THE ALTERNATIVE CATEGORY.
+## HERE THE ANALYSIS INVESTIGATE MIMICS VS. NON-MIMICS.
+load("./data/data_for_BiSSE-alt.RData")
+load("./data/results_bisse_mcmc_alt_ABC.RData")
 
+stateC <- as.numeric(st.alt[[3]][,2])
+names(stateC) <- st.alt[[3]][,1]
+
+dic.altC.one <- mclapply(1:length(mcmc.onerate.C), FUN = function(x)
+    foo.dic.one(mcmc.onerate.C[[x]][[1]], tree.genus[[x]], stateC, unres.alt[[3]])
+  , mc.cores = 6)
+dic.altC.two <- mclapply(1:length(mcmc.tworate.C), FUN = function(x)
+    foo.dic.two(mcmc.tworate.C[[x]][[1]], tree.genus[[x]], stateC, unres.alt[[3]])
+  , mc.cores = 6)
+save(dic.altC.two, dic.altC.one, file = "./data/dic_BiSSE_altC_results.RData")
 
 ################################################################################################
 ################################################################################################
@@ -203,7 +218,3 @@ length( which(sim.con.rich > 594) ) / 1000
 length( which(sim.con.st0 > 0.64) ) / 1000
 
 ################################################################################################
-################################################################################################
-## POSTERIOR PREDICTIVE CHECKS FOR THE ALTERNATIVE CATEGORIZATIONS
-
-## The posterior predictive analyses for the other 3 alternative categorizations.

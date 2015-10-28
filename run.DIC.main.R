@@ -34,10 +34,10 @@ names(state) <- st[,1]
 index <- 1:5
 tasks <- list(
     job1 <- function() mclapply(index, FUN = function(x) foo.dic.one(mcmc.onerate[[x]][[1]][5000:10000,-1],
-																	 tree.genus[[x]], st, unres)
+																	 tree.genus[[x]], state, unres)
                              , mc.cores = 6),
     job2 <- function() mclapply(index, FUN = function(x) foo.dic.two(mcmc.tworate[[x]][[1]][5000:10000,-1],
-																	 tree.genus[[x]], st, unres)
+																	 tree.genus[[x]], state, unres)
                               , mc.cores = 6)
 )
 

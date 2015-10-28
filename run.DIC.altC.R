@@ -31,11 +31,11 @@ names(stateC) <- st.alt[[3]][,1]
 ## Run the DIC estimate in parallel.
 index <- 1:5
 tasks <- list(
-    job1 <- function() mclapply(index, FUN = function(x) foo.dic.one(mcmc.onerate.C[[x]][[1]],
+    job1 <- function() mclapply(index, FUN = function(x) foo.dic.one(mcmc.onerate.C[[x]][5000:10000,c(3:6)],
 																	 tree.genus[[x]], stateC,
 																	 unres.alt[[3]])
                              , mc.cores = 6),
-    job2 <- function() mclapply(index, FUN = function(x) foo.dic.two(mcmc.tworate.C[[x]][[1]], 
+    job2 <- function() mclapply(index, FUN = function(x) foo.dic.two(mcmc.tworate.C[[x]][5000:10000,c(3:8)], 
 																	 tree.genus[[x]], stateC, 
 																     unres.alt[[3]])
                               , mc.cores = 6)

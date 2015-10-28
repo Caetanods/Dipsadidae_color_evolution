@@ -260,3 +260,91 @@ legend(x = 3.8, y = 0.8,legend = c("cryptic to contrasting (q_01)","contrasting 
 
 dev.off()
 ######################################################################################
+## FIGURES FOR THE SUPPLEMENTARY INFORMATION
+
+## Phylogeny, ancestral states and diversity at the tips using the mimics vs. non-mimics category.
+## Note that this figure is just a version of the Figure 1 included in the main test.
+
+## Get the data and parameters for the altC analysis.
+load("./data/results_bisse_mcmc_alt_ABC.RData")
+load("./data/data_for_BiSSE-alt.RData")
+
+## To make this figure need to first make ancestral state reconstruction on the MCC tree.
+## Set depth of the MCC to 1 and solve polytomies for ancestral state estimation.
+tree.mcc <- rescale(tree.mcc, model = "depth", 1.0)
+tree.mcc <- multi2di(tree.mcc)
+
+## Now get parameter estimates. For this going to use the grand mean of the mean estimates
+##     from the posterior densities under the simple BiSSE model across the 100 phylogenies
+##     sampled from the posterior distribution from Beast.
+post <- seq(from=dim(mcmc.onerate.C[[1]])[1]/2, to=dim(mcmc.onerate.C[[1]])[1])
+md <- list()
+for(i in 1:length(mcmc.onerate.C)){
+    md[[i]] <- sapply(mcmc.onerate.C[[i]][post,], mean)
+}
+md <- do.call(rbind, md)
+
+## Simple plot to check the uncertainty in the parameter estimates across phylogenies:
+boxplot(md[,-c(1,2,7)])
+
+md
+
+stateC <- as.numeric(st.alt[[3]][,2])
+names(stateC) <- st.alt[[3]][,1]
+
+lik <- make.bisse(tree.mcc, states = stateC, unresolved = unres.alt[[3]])
+lik <- constrain(lik, lambda1~lambda0, mu1~mu0)
+md <- md[,-c(1,2,7)]
+st <- apply(md, 1, function(x) asr.marginal(lik, x)[2,])
+st.avg2 <- rowMeans(st)
+st.avg1 <- 1 - st.avg2
+st <- unname(rbind(st.avg1, st.avg2))
+
+## Making the figure:
+## Preparing the bar with the proportion of states in each genera:
+mm <- which(!tree.mcc$tip.label %in% unres.alt[[3]][,1])
+st.bar <- data.frame(tip.label = tree.mcc$tip.label[mm], state = stateC[tree.mcc$tip.label[mm]])
+rownames(st.bar) <- NULL
+st.bar <- data.frame(st.bar, n0 = rep(0, times = dim(st.bar)[1]), n1 = rep(0, times = dim(st.bar)[1]))
+st.bar$n0[which(st.bar$state == 0)] <- 1
+st.bar$n1[which(st.bar$state == 1)] <- 1
+st.bar <- st.bar[,-2]
+
+st.bar.total <- unres.alt[[3]][,-4]
+st.bar.total <- rbind(st.bar.total, st.bar)
+
+mmm <- match(tree.mcc$tip.label, st.bar.total[,1])
+tt <- st.bar.total[mmm,2] + st.bar.total[mmm,3]
+names(tt) <- tree.mcc$tip.label
+
+## Have mimic and non-mimic species.
+st1 <- which(!st.bar.total[mmm,3] == 0 & !st.bar.total[mmm,2] == 0)
+## Have only mimic species.
+st11 <- which(st.bar.total[mmm,2] == 0)
+## Have only non-mimic species.
+st0 <- which(!st.bar.total[mmm,2] == 0)
+
+pdf("Figure_SI_Ancestral_state_mimic_non-mimic_Caetano_et_al_2016.pdf", width = 15, height = 20)
+plot.phylo(tree.mcc, font = 4, label.offset = 0.03, cex = 1.0, adj = 1, x.lim = 2, edge.width = 3)
+nodelabels(pie=t(st), piecol=c("grey","red"), cex=.35)
+axisPhylo(side = 3, pos = c(70,0))
+
+ad.t0 <- 1.275; incr <- 0.007; wd <- 0.2
+
+## Add bars in three sections: All gray, red in top of gray, all red.
+for(i in 1:length(st0)){ ## st0
+    polygon(x = c(ad.t0, ad.t0+(incr*st.bar.total[mmm,2][st0[i]]), ad.t0+(incr*st.bar.total[mmm,2][st0[i]])
+                , ad.t0), y = c(st0[i]-wd, st0[i]-wd, st0[i]+wd, st0[i]+wd), col = "grey", lend = 1)
+}
+for(i in 1:length(st1)){ ## st1 on top of st0
+    polygon(x = c(ad.t0+(incr*st.bar.total[mmm,2][st1[i]])
+                , ad.t0+(incr*st.bar.total[mmm,2][st1[i]])+(incr*st.bar.total[mmm,3][st1[i]])
+                , ad.t0+(incr*st.bar.total[mmm,2][st1[i]])+(incr*st.bar.total[mmm,3][st1[i]])
+                , ad.t0+(incr*st.bar.total[mmm,2][st1[i]]))
+          , y = c(st1[i]-wd, st1[i]-wd, st1[i]+wd, st1[i]+wd), col = "red", lend = 1)
+}
+for(i in 1:length(st11)){ ## st1 only
+    polygon(x = c(ad.t0, ad.t0+(incr*st.bar.total[mmm,3][st11[i]]), ad.t0+(incr*st.bar.total[mmm,3][st11[i]])
+                , ad.t0), y = c(st11[i]-wd, st11[i]-wd, st11[i]+wd, st11[i]+wd), col = "red", lend = 1)
+}
+dev.off()

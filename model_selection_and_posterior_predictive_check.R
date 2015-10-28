@@ -41,13 +41,7 @@ foo.dic.one <- function(res, tree, st, unres){
     dic.one <- dic.mcmcsamples(res, burnin = b, lik = lik.c)
     return(dic.one)
 }
-
-dic.one <- mclapply(1:length(mcmc.onerate), FUN = function(x)
-    foo.dic.one(mcmc.onerate[[x]][[1]][5000:10000,-1], tree.genus[[x]], st, unres)
-  , mc.cores = 15)
-
-## Calculate for the trait-dependent (more complex) BiSSE model:
-
+## Calculate DIC for the full BiSSE model:
 foo.dic.two <- function(res, tree, st, unres){
     tree <- multi2di(tree)
     mmm <- match(tree$tip.label, names(st))
@@ -56,6 +50,14 @@ foo.dic.two <- function(res, tree, st, unres){
     dic.two <- dic.mcmcsamples(res, burnin = b, lik = lik)
     return(dic.two)
 }
+
+state <- as.numeric(st[,2])
+names(state) <- st[,1]
+
+dic.one <- mclapply(1:length(mcmc.onerate), FUN = function(x)
+    foo.dic.one(mcmc.onerate[[x]][[1]][5000:10000,-1], tree.genus[[x]], st, unres)
+  , mc.cores = 15)
+
 dic.two <- mclapply(1:length(mcmc.tworate), FUN = function(x)
     foo.dic.two(mcmc.tworate[[x]][[1]][5000:10000,-1], tree.genus[[x]], st, unres)
   , mc.cores = 15)

@@ -41,7 +41,9 @@ tasks <- list(
                               , mc.cores = 6)
 )
 
-dic.altC.one <- tasks[[1]]
-dic.altC.two <- tasks[[2]]
+dic.altC.out <- mclapply(tasks, function(f) f(), mc.cores = 20)
+
+dic.altC.one <- dic.altC.out[[1]]
+dic.altC.two <- dic.altC.out[[2]]
 
 save(dic.altC.two, dic.altC.one, file = "./data/dic_BiSSE_altC_results.RData")

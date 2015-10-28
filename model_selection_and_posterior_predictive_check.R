@@ -43,7 +43,8 @@ foo.dic.one <- function(res, tree, st, unres){
 }
 
 dic.one <- mclapply(1:length(mcmc.onerate), FUN = function(x)
-                  foo.dic.one(mcmc.onerate[[x]][[1]], tree.genus[[x]], st, unres), mc.cores = 15)
+    foo.dic.one(mcmc.onerate[[x]][[1]][5000:10000,-1], tree.genus[[x]], st, unres)
+  , mc.cores = 15)
 
 ## Calculate for the trait-dependent (more complex) BiSSE model:
 
@@ -56,7 +57,8 @@ foo.dic.two <- function(res, tree, st, unres){
     return(dic.two)
 }
 dic.two <- mclapply(1:length(mcmc.tworate), FUN = function(x)
-                  foo.dic.two(mcmc.tworate[[x]][[1]], tree.genus[[x]], st, unres), mc.cores = 15)
+    foo.dic.two(mcmc.tworate[[x]][[1]][5000:10000,-1], tree.genus[[x]], st, unres)
+  , mc.cores = 15)
 
 ## Get the result as vectors:
 dic.one <- as.vector( do.call(cbind, dic.one) )
@@ -103,14 +105,17 @@ stateC <- as.numeric(st.alt[[3]][,2])
 names(stateC) <- st.alt[[3]][,1]
 
 ## Calculate the DIC based on the posterior values.
-dic.altC.one <- mclapply(1:length(mcmc.onerate.C), FUN = function(x)
-    foo.dic.one(mcmc.onerate.C[[x]][5000:10000,c(3:6)], tree.genus[[x]], stateC, unres.alt[[3]])
-  , mc.cores = 6)
-dic.altC.two <- mclapply(1:length(mcmc.tworate.C), FUN = function(x)
-    foo.dic.two(mcmc.tworate.C[[x]][5000:10000,c(3:8)], tree.genus[[x]], stateC, unres.alt[[3]])
-  , mc.cores = 6)
+## dic.altC.one <- mclapply(1:length(mcmc.onerate.C), FUN = function(x)
+##     foo.dic.one(mcmc.onerate.C[[x]][5000:10000,c(3:6)], tree.genus[[x]], stateC, unres.alt[[3]])
+##   , mc.cores = 6)
+## dic.altC.two <- mclapply(1:length(mcmc.tworate.C), FUN = function(x)
+##     foo.dic.two(mcmc.tworate.C[[x]][5000:10000,c(3:8)], tree.genus[[x]], stateC, unres.alt[[3]])
+##   , mc.cores = 6)
 
-save(dic.altC.two, dic.altC.one, file = "./data/dic_BiSSE_altC_results.RData")
+## save(dic.altC.two, dic.altC.one, file = "./data/dic_BiSSE_altC_results.RData")
+
+## Load the results of analysis:
+load("./data/dic_BiSSE_altC_results.RData")
 
 ################################################################################################
 ################################################################################################

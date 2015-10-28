@@ -1,7 +1,7 @@
 require(diversitree)
 require(parallel)
 
-source("./functions/analysis.R")
+source("../functions/analysis.R")
 
 foo.dic.one <- function(res, tree, st, unres){
     tree <- multi2di(tree)
@@ -22,8 +22,8 @@ foo.dic.two <- function(res, tree, st, unres){
     return(dic.two)
 }
 
-load("./data/data_for_BiSSE.RData")
-load("./data/results_100_phylo_bisse.RData")
+load("../data/data_for_BiSSE.RData")
+load("../data/results_100_phylo_bisse.RData")
 
 ## Run the DIC estimate in parallel.
 ## This is going to run only the first 5 mcmc chains.
@@ -40,7 +40,7 @@ tasks <- list(
 
 dic.main.out <- mclapply(tasks, function(f) f(), mc.cores = 20)
 
-dic.main.one <- dic.altC.out[[1]]
-dic.main.two <- dic.altC.out[[2]]
+dic.main.one <- dic.main.out[[1]]
+dic.main.two <- dic.main.out[[2]]
 
-save(dic.altC.two, dic.altC.one, file = "./data/dic_BiSSE_main_results.RData")
+save(dic.main.two, dic.main.one, file = "../data/dic_BiSSE_main_results.RData")

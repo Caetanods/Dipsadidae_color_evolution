@@ -55,11 +55,11 @@ state <- as.numeric(st[,2])
 names(state) <- st[,1]
 
 dic.one <- mclapply(1:length(mcmc.onerate), FUN = function(x)
-    foo.dic.one(mcmc.onerate[[x]][[1]][5000:10000,-1], tree.genus[[x]], st, unres)
+    foo.dic.one(mcmc.onerate[[x]][[1]][5000:10000,-c(1,6)], tree.genus[[x]], st, unres)
   , mc.cores = 15)
 
 dic.two <- mclapply(1:length(mcmc.tworate), FUN = function(x)
-    foo.dic.two(mcmc.tworate[[x]][[1]][5000:10000,-1], tree.genus[[x]], st, unres)
+    foo.dic.two(mcmc.tworate[[x]][[1]][5000:10000,-c(1,8)], tree.genus[[x]], st, unres)
   , mc.cores = 15)
 
 ## Get the result as vectors:

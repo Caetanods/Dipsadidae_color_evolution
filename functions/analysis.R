@@ -277,16 +277,14 @@ dic.mcmcsamples <- function(x, burnin=0, lik){
   unname(dic)
 }
 
-dic.lite <- function(x, p, burnin=0, lik){
+dic.lite <- function(x, p, burnin=0, lik, prior){
   ## Compute deviance information criterion from mcmcsamples.
   ## This version does not recalculates the likelihood for entire joined posterior distribution.
   ## x = matrix with only the parameters of the posterior. Other columns need to be excluded.
   ## p = The log likelihood as present in the MCMC results from the BiSSE analyses.
   ## burnin = optional.
   ## lik = The likelihood function to calculate the likelihood of the mean parameter values.
-
-  start <- starting.point.bisse(tree)
-  prior <- make.prior.exponential(1 / 2 * (start[1] - start[3]))
+  ## prior = the prior function.
 
   ## First we need to get the likelihood. The value reported by BiSSE is the log.lik * log.prior.
   lik.post <- p - apply(x, 1, prior)

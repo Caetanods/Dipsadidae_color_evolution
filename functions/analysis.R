@@ -257,12 +257,41 @@ dic.mcmcsamples <- function(x, burnin=0, lik){
   ## p <- coef(x, burnin=burnin)
   p <- x  ## Because I am reading from a csv. So 'x' is a matrix with parameter values.
   dev <- -2 * apply(p, 1, lik)
+  ## The previous line seems not to be needed. Note that the posterior produced by the BiSSE
+  ##   analysis already have the likelihood of each generation of the mcmc. This means
+  ##   that this line is nothing but a recalculation of this quantity.
 
   ## estimate effective number of parameters
   dbar <- mean(dev)
 
   ## deviance of posterior means:
   post.means <- colMeans(p)
+
+  ## evaluate deviance at the mean posterior estimate
+  dhat <- -2 * lik(post.means)
+  pd <- dbar - dhat
+
+  ## calculate dic
+  dic <- dbar + pd
+  unname(dic)
+}
+
+dic.lite <- function(x, p, burnin=0, lik){
+  ## Compute deviance information criterion from mcmcsamples.
+  ## This version does not recalculates the likelihood for entire joined posterior distribution.
+  ## x = matrix with only the parameters of the posterior. Other columns need to be excluded.
+  ## p = The log likelihood as present in the MCMC results from the BiSSE analyses.
+  ## burnin = optional.
+  ## lik = The likelihood function to calculate the likelihood of the mean parameter values.
+
+  ## Get the deviance from the posterior
+  dev <- -2 * p
+
+  ## estimate effective number of parameters
+  dbar <- mean(dev)
+
+  ## deviance of posterior means:
+  post.means <- colMeans(x)
 
   ## evaluate deviance at the mean posterior estimate
   dhat <- -2 * lik(post.means)

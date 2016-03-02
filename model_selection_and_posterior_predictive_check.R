@@ -205,24 +205,26 @@ load("./data/post_check.RData")
 ##########################################################################
 ## Plotting the results:
 
+pdf("Figure3_Caetano_et_al_2016.pdf")
 par(mfrow = c(2,2))
-hist(sim.full.rich, breaks = 25, main = "Total richness - Full model", xlab = "Number of species"
-    , xlim = c(0,2000), col = "grey", border = "white")
-abline(v = 594, col = "red", lty = 2, lwd = 1.5)
-legend(x = 1250, y = 450, legend = "Observed", col = "red", lty = 2, lwd = 1.5, bty = "n")
-hist(sim.full.st0, breaks = 25, main = "State frequency - Full model", xlab = "Frequency of state 0"
-    , xlim = c(0,1), col = "grey", border = "white" )
-abline(v = 0.64, col = "blue", lty = 2, lwd = 1.5)
-legend(x = 0, y = 140, legend = "Observed", col = "blue", lty = 2, lwd = 1.5, bty = "n")
+hist(sim.full.rich, breaks = 25, main = "Richness", xlab = "Number of species"
+    , xlim = c(0,1500), ylim = c(0,500), col = "#ff000060", border = "white")
+abline(v = 594, col = "black", lty = 2, lwd = 1.5)
+## legend(x = 1250, y = 450, legend = "Observed", col = "red", lty = 2, lwd = 1.5, bty = "n")
+hist(sim.full.st0, breaks = 25, main = "State frequency", xlab = "Frequency of state 0"
+    , xlim = c(0,1), ylim = c(0,250), col = "#ff000060", border = "white" )
+abline(v = 0.64, col = "black", lty = 2, lwd = 1.5)
+## legend(x = 0, y = 140, legend = "Observed", col = "blue", lty = 2, lwd = 1.5, bty = "n")
 
-hist(sim.con.rich, breaks = 25, main = "Total richness - Constrained model", xlab = "Number of species"
-   , xlim = c(0,2000), col = "grey", border = "white" )
-abline(v = 594, col = "red", lty = 2, lwd = 1.5)
-legend(x = 1250, y = 200, legend = "Observed", col = "red", lty = 2, lwd = 1.5, bty = "n")
-hist(sim.con.st0, breaks = 25, main = "State frequency - Constrained model", xlab = "Frequency of state 0"
-    , xlim = c(0,1), col = "grey", border = "white" )
-abline(v = 0.64, col = "blue", lty = 2, lwd = 1.5)
-legend(x = 0, y = 140, legend = "Observed", col = "blue", lty = 2, lwd = 1.5, bty = "n")
+hist(sim.con.rich, breaks = 25, main = "", xlab = "Number of species"
+   , xlim = c(0,1500), ylim = c(0,500), col = "#0000ff40", border = "white" )
+abline(v = 594, col = "black", lty = 2, lwd = 1.5)
+## legend(x = 1250, y = 200, legend = "Observed", col = "red", lty = 2, lwd = 1.5, bty = "n")
+hist(sim.con.st0, breaks = 25, main = "", xlab = "Frequency of state 0"
+    , xlim = c(0,1), ylim = c(0,250), col = "#0000ff40", border = "white" )
+abline(v = 0.64, col = "black", lty = 2, lwd = 1.5)
+## legend(x = 0, y = 140, legend = "Observed", col = "blue", lty = 2, lwd = 1.5, bty = "n")
+dev.off()
 
 ## What is the proportion of the distribution more extreme than the observed values?
 ## Full model:

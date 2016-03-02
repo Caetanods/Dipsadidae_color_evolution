@@ -259,7 +259,8 @@ dic.mcmcsamples <- function(x, burnin=0, lik){
   dev <- -2 * apply(p, 1, lik)
   ## The previous line seems not to be needed. Note that the posterior produced by the BiSSE
   ##   analysis already have the likelihood of each generation of the mcmc. This means
-  ##   that this line is nothing but a recalculation of this quantity.
+  ##   that this line is nothing but a recalculation of this quantity. The catch is that BiSSE
+  ##   returns the log.lik + log.prior. Thus, I need to take the prior out to have the likelihood.
 
   ## estimate effective number of parameters
   dbar <- mean(dev)
@@ -284,8 +285,13 @@ dic.lite <- function(x, p, burnin=0, lik){
   ## burnin = optional.
   ## lik = The likelihood function to calculate the likelihood of the mean parameter values.
 
+  start <- starting.point.bisse(tree)
+  prior <- make.prior.exponential(1 / 2 * (start[1] - start[3]))
+
+  ## First we need to get the likelihood. The value reported by BiSSE is the log.lik * log.prior.
+  lik.post <- p - apply(x, 1, prior)
   ## Get the deviance from the posterior
-  dev <- -2 * p
+  dev <- -2 * lik.post
 
   ## estimate effective number of parameters
   dbar <- mean(dev)

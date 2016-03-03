@@ -99,30 +99,16 @@ abline(v=median(dif), col = "green", lty = 4, lwd = 2)
 ############################################################################
 ## DIC ANALYSIS AND RESULTS FOR THE ALTERNATIVE CATEGORY.
 ## HERE THE ANALYSIS INVESTIGATE MIMICS VS. NON-MIMICS.
-source("./functions/analysis.R")
-load("./data/data_for_BiSSE-alt.RData")
-load("./data/results_bisse_mcmc_alt_ABC.RData")
 
-stateC <- as.numeric(st.alt[[3]][,2])
-names(stateC) <- st.alt[[3]][,1]
+## Load the results:
+dic.alt <- readRDS("./data/dic.scores_mimic_vs_nonmimic.rds")
 
-## Calculate the DIC based on the posterior values.
-## dic.altC.one <- mclapply(1:length(mcmc.onerate.C), FUN = function(x)
-##     foo.dic.one(mcmc.onerate.C[[x]][5000:10000,c(3:6)], tree.genus[[x]], stateC, unres.alt[[3]])
-##   , mc.cores = 6)
-## dic.altC.two <- mclapply(1:length(mcmc.tworate.C), FUN = function(x)
-##     foo.dic.two(mcmc.tworate.C[[x]][5000:10000,c(3:8)], tree.genus[[x]], stateC, unres.alt[[3]])
-##   , mc.cores = 6)
+## Make a combined figure. Read for the supplementary info of the manuscript.
+hist(dif, probability = TRUE, main="", xlab = "DIC difference", col = "grey", border = "white")
+lines(density(dif), col = "red", lwd = 1.5)
+abline(v=mean(dif), col = "blue", lty = 4, lwd = 2)
+abline(v=median(dif), col = "green", lty = 4, lwd = 2)
 
-## save(dic.altC.two, dic.altC.one, file = "./data/dic_BiSSE_altC_results.RData")
-
-## Load the results of analysis:
-load("./data/dic_BiSSE_altC_results.RData")
-
-dic.altC.one <- as.vector( do.call(cbind, dic.altC.one) )
-dic.altC.two <- as.vector( do.call(cbind, dic.altC.two) )
-
-dic.altC.one - dic.altC.two
 
 ################################################################################################
 ################################################################################################

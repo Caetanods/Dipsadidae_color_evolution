@@ -287,7 +287,7 @@ dic.lite <- function(x, p, burnin=0, lik, prior){
   ## prior = the prior function.
 
   ## First we need to get the likelihood. The value reported by BiSSE is the log.lik * log.prior.
-  lik.post <- p - apply(x, 1, prior)
+  lik.post <- p - apply(x, 1, prior) ## Taking the prior out of the likelihood.
   ## Get the deviance from the posterior
   dev <- -2 * lik.post
 

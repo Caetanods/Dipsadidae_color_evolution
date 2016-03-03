@@ -101,13 +101,17 @@ abline(v=median(dif), col = "green", lty = 4, lwd = 2)
 ## HERE THE ANALYSIS INVESTIGATE MIMICS VS. NON-MIMICS.
 
 ## Load the results:
-dic.alt <- readRDS("./data/dic.scores_mimic_vs_nonmimic.rds")
+dif.alt <- readRDS("./data/dic.scores_mimic_vs_nonmimic.rds")
 
 ## Make a combined figure. Read for the supplementary info of the manuscript.
-hist(dif, probability = TRUE, main="", xlab = "DIC difference", col = "grey", border = "white")
-lines(density(dif), col = "red", lwd = 1.5)
-abline(v=mean(dif), col = "blue", lty = 4, lwd = 2)
-abline(v=median(dif), col = "green", lty = 4, lwd = 2)
+pdf("SI_Figure_2_model_selection_DIC_scores.pdf", width=14, height = 7)
+par( mfrow = c(1,2) )
+hist(dif.alt, probability = TRUE, main="coral-mimic vs. non-mimic", xlab = "DIC difference values"
+   , col = "grey", border = "white", xlim = c(5,30), ylim = c(0,0.20) )
+hist(dif, probability = TRUE, main="contrasting vs. cryptic", xlab = "DIC difference values"
+   , col = "grey", border = "white", xlim = c(5,30), ylim = c(0,0.20) )
+dev.off()
+
 
 
 ################################################################################################
